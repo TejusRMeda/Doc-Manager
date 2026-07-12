@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schengen Visa Document Collator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F6F4F0;
+    --surface: #FFFFFF;
+    --surface-alt: #EDE9E3;
+    --border: #D6D0C6;
+    --border-light: #E8E3DB;
+    --text: #1A1612;
+    --text-muted: #7A7267;
+    --text-light: #A69D91;
+    --accent: #1B4B6B;
+    --accent-light: #E8F0F6;
+    --accent-hover: #153D58;
+    --success: #2D6A4F;
+    --success-bg: #E8F5ED;
+    --success-border: #B7DBCA;
+    --warning: #B45309;
+    --warning-bg: #FEF3C7;
+    --danger: #9B2C2C;
+    --danger-bg: #FEE2E2;
+    --shadow-sm: 0 1px 2px rgba(26,22,18,0.06);
+    --shadow-md: 0 4px 12px rgba(26,22,18,0.08);
+    --shadow-lg: 0 8px 30px rgba(26,22,18,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--accent);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    pointer-events: none;
+  }
+
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 28px 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-flag {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 18px;
+  }
+
+  .header-flag span {
+    width: 4px;
+    height: 22px;
+    border-radius: 2px;
+  }
+
+  .flag-blue { background: #002395; }
+  .flag-white { background: #FFFFFF; }
+  .flag-red { background: #ED2939; }
+
+  .header { transition: background-color 0.5s ease; }
+
+  .country-selector-wrap {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .country-selector-label {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.65;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .country-selector {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: rgba(255,255,255,0.15);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 30px 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.2s;
+  }
+  .country-selector:hover { background-color: rgba(255,255,255,0.25); }
+  .country-selector option { background: #1a1a1a; color: white; }
+
+  .header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+
+  .header p {
+    font-size: 14px;
+    opacity: 0.7;
+    font-weight: 300;
+  }
+
+  /* Tabs */
+  .tabs-bar {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border-bottom: 2px solid var(--border-light);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .tab {
+    padding: 14px 20px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .tab:hover { color: var(--text); background: var(--surface-alt); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  .tab .tab-badge {
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--border-light);
+    color: var(--text-muted);
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .tab.active .tab-badge { background: var(--accent-light); color: var(--accent); }
+  .tab-badge.complete { background: var(--success-bg) !important; color: var(--success) !important; }
+
+  .tab-add {
+    padding: 14px 16px 12px;
+    font-size: 18px;
+    font-weight: 400;
+    font-family: inherit;
+    color: var(--text-light);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .tab-add:hover { color: var(--accent); background: var(--accent-light); }
+
+  .tab-close {
+    display: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: none;
+    background: none;
+    color: var(--text-light);
+    font-size: 12px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+
+  .tab:hover .tab-close { display: flex; }
+  .tab-close:hover { background: var(--danger-bg); color: var(--danger); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 28px 60px;
+  }
+
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 0 24px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 28px;
+  }
+
+  .progress-ring {
+    width: 48px; height: 48px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .progress-ring svg { transform: rotate(-90deg); }
+  .progress-ring-bg { stroke: var(--border-light); fill: none; stroke-width: 4; }
+  .progress-ring-fill { stroke: var(--success); fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+
+  .progress-count {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 13px; font-weight: 600; color: var(--text);
+  }
+
+  .progress-text { font-size: 14px; color: var(--text-muted); }
+  .progress-text strong { color: var(--text); font-weight: 600; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-light);
+    margin-bottom: 12px; padding-left: 2px;
+  }
+
+  .doc-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+
+  .doc-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px;
+    transition: all 0.2s ease;
+    cursor: default; position: relative;
+  }
+
+  .doc-card:hover { border-color: var(--border); box-shadow: var(--shadow-sm); }
+  .doc-card.has-file { border-color: var(--success-border); background: var(--success-bg); }
+  .doc-card.has-file .doc-status { background: var(--success); border-color: var(--success); }
+  .doc-card.has-file .doc-status svg { opacity: 1; }
+  .doc-card.is-printed { border-color: #C4B5FD; background: #F5F3FF; }
+  .doc-card.is-printed .doc-status { background: #7C3AED; border-color: #7C3AED; }
+  .doc-card.is-printed .doc-status svg { opacity: 1; }
+
+  .btn-printed {
+    padding: 5px 10px; font-size: 11px; font-weight: 500; font-family: inherit;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-muted);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease;
+    display: flex; align-items: center; gap: 5px; white-space: nowrap;
+  }
+  .btn-printed:hover { border-color: #C4B5FD; background: #F5F3FF; color: #7C3AED; }
+  .btn-printed.active { border-color: #C4B5FD; background: #7C3AED; color: white; }
+
+  .printed-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 500; color: #7C3AED; background: #EDE9FE;
+    padding: 2px 7px; border-radius: 3px; margin-left: 6px; vertical-align: middle;
+  }
+  .printed-badge svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+  .doc-status {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+  .doc-status svg { width: 14px; height: 14px; stroke: white; stroke-width: 2.5; fill: none; opacity: 0; transition: opacity 0.2s ease; }
+
+  .doc-info { flex: 1; min-width: 0; }
+  .doc-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .doc-detail { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doc-detail.file-name { color: var(--success); font-weight: 500; }
+  .doc-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  .btn-upload {
+    padding: 7px 14px; font-size: 12px; font-weight: 500; font-family: inherit;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease;
+  }
+  .btn-upload:hover { background: var(--surface-alt); }
+  .has-file .btn-upload { border-color: var(--success-border); background: white; }
+
+  .btn-remove {
+    padding: 7px 10px; font-size: 12px; font-family: inherit;
+    border: 1px solid transparent; background: none; color: var(--text-light);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease;
+  }
+  .btn-remove:hover { color: var(--danger); background: var(--danger-bg); }
+
+  .doc-card .drag-handle { cursor: grab; color: var(--text-light); padding: 4px; flex-shrink: 0; opacity: 0.4; transition: opacity 0.15s; }
+  .doc-card:hover .drag-handle { opacity: 0.8; }
+  .doc-card.dragging { opacity: 0.5; transform: scale(0.98); }
+  .doc-card.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-light); }
+
+  .optional-badge {
+    display: inline-block; font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-light); background: var(--surface-alt);
+    padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle;
+  }
+
+  .add-custom { display: flex; gap: 8px; margin-bottom: 32px; }
+  .add-custom input {
+    flex: 1; padding: 10px 14px; font-size: 13px; font-family: inherit;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s;
+  }
+  .add-custom input::placeholder { color: var(--text-light); }
+  .add-custom input:focus { border-color: var(--accent); }
+  .add-custom button {
+    padding: 10px 18px; font-size: 13px; font-weight: 500; font-family: inherit;
+    border: 1px solid var(--accent); background: var(--accent); color: white;
+    border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; white-space: nowrap;
+  }
+  .add-custom button:hover { background: var(--accent-hover); }
+
+  .export-section {
+    position: sticky; bottom: 0;
+    background: linear-gradient(transparent, var(--bg) 20%);
+    padding: 30px 0 10px;
+    margin: 0 -28px; padding-left: 28px; padding-right: 28px;
+  }
+
+  .export-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .export-options { display: flex; align-items: center; gap: 14px; flex: 1; }
+
+  .toggle-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-muted); cursor: pointer; user-select: none;
+  }
+  .toggle-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  .btn-export {
+    padding: 14px 24px; font-size: 14px; font-weight: 600; font-family: inherit;
+    border: none; background: var(--accent); color: white;
+    border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease;
+    box-shadow: var(--shadow-md);
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .btn-export:hover:not(:disabled) { background: var(--accent-hover); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+  .btn-export:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-export svg { width: 18px; height: 18px; }
+
+  .btn-export-all {
+    padding: 14px 24px; font-size: 14px; font-weight: 600; font-family: inherit;
+    border: 2px solid var(--accent); background: transparent; color: var(--accent);
+    border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .btn-export-all:hover:not(:disabled) { background: var(--accent-light); }
+  .btn-export-all:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-export-all svg { width: 18px; height: 18px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text); color: white;
+    padding: 12px 24px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500;
+    box-shadow: var(--shadow-lg); transition: transform 0.3s ease; z-index: 100;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .export-spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+    border-radius: 50%; animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    background: var(--surface); border-radius: 14px; padding: 28px;
+    width: 360px; max-width: 90vw; box-shadow: var(--shadow-lg);
+    transform: scale(0.95); transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .modal p { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+  .modal input {
+    width: 100%; padding: 10px 14px; font-size: 14px; font-family: inherit;
+    border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; margin-bottom: 18px;
+  }
+  .modal input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .modal-actions button {
+    padding: 9px 18px; font-size: 13px; font-weight: 500; font-family: inherit;
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+  }
+  .modal-btn-cancel { border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); }
+  .modal-btn-cancel:hover { background: var(--surface-alt); }
+  .modal-btn-confirm { border: none; background: var(--accent); color: white; }
+  .modal-btn-confirm:hover { background: var(--accent-hover); }
+
+  @media (max-width: 600px) {
+    .header-inner { padding: 28px 20px 24px; }
+    .header h1 { font-size: 26px; }
+    .tabs-bar { padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tab { padding: 12px 14px 10px; font-size: 12px; }
+    .container { padding: 20px 20px 60px; }
+    .doc-card { padding: 14px; gap: 10px; }
+    .export-bar { flex-direction: column; }
+    .export-options { width: 100%; }
+    .btn-export, .btn-export-all { width: 100%; justify-content: center; }
+    .export-section { margin: 0 -20px; padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-flag">
+      <span class="flag-blue"></span>
+      <span class="flag-white"></span>
+      <span class="flag-red"></span>
+    </div>
+    <h1>Schengen Visa Document Collator</h1>
+    <p>Upload supporting documents per traveller, reorder, and export as print-ready PDFs</p>
+    <div class="country-selector-wrap">
+      <span class="country-selector-label">Destination</span>
+      <select class="country-selector" id="countrySelect" onchange="applyTheme(this.value)">
+        <option value="france">🇫🇷 France</option>
+        <option value="germany">🇩🇪 Germany</option>
+        <option value="italy">🇮🇹 Italy</option>
+        <option value="spain">🇪🇸 Spain</option>
+        <option value="netherlands">🇳🇱 Netherlands</option>
+        <option value="greece">🇬🇷 Greece</option>
+        <option value="switzerland">🇨🇭 Switzerland</option>
+        <option value="czech">🇨🇿 Czech Republic</option>
+        <option value="portugal">🇵🇹 Portugal</option>
+        <option value="austria">🇦🇹 Austria</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar" id="tabsBar"></div>
+
+<div class="container">
+  <div class="progress-bar">
+    <div class="progress-ring">
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <circle class="progress-ring-bg" cx="24" cy="24" r="20"/>
+        <circle class="progress-ring-fill" cx="24" cy="24" r="20" stroke-dasharray="125.66" stroke-dashoffset="125.66" id="progressCircle"/>
+      </svg>
+      <span class="progress-count" id="progressCount">0/0</span>
+    </div>
+    <div class="progress-text">
+      <strong id="progressLabel">No documents uploaded yet</strong>
+    </div>
+  </div>
+
+  <div class="section-label">Required Documents</div>
+  <div class="doc-list" id="requiredList"></div>
+
+  <div class="section-label">Optional / Additional</div>
+  <div class="doc-list" id="optionalList"></div>
+
+  <div class="add-custom">
+    <input type="text" id="customName" placeholder="Add a custom document (e.g. NOC from employer)">
+    <button onclick="addCustomDoc()">+ Add</button>
+  </div>
+
+  <div class="export-section">
+    <div class="export-bar">
+      <div class="export-options">
+        <label class="toggle-label">
+          <input type="checkbox" id="addDividers" checked>
+          Section dividers
+        </label>
+      </div>
+      <button class="btn-export-all" id="exportAllBtn" onclick="exportAllPDF()" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Export All
+      </button>
+      <button class="btn-export" id="exportBtn" onclick="exportCurrentPDF()" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span id="exportBtnLabel">Export PDF</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addPersonModal">
+  <div class="modal">
+    <h3>Add Traveller</h3>
+    <p>Enter the traveller's name. Each person gets their own document checklist.</p>
+    <input type="text" id="newPersonName" placeholder="e.g. Priya, John…">
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="modal-btn-confirm" onclick="confirmAddPerson()">Add</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="renameModal">
+  <div class="modal">
+    <h3>Rename Traveller</h3>
+    <p>Update the name for this traveller's tab.</p>
+    <input type="text" id="renameInput">
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeRenameModal()">Cancel</button>
+      <button class="modal-btn-confirm" onclick="confirmRename()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COUNTRY_THEMES = {
+  france:      { flag: ['#002395','#FFFFFF','#ED2939'], accent: '#002395', accentLight: '#E8ECF8', accentHover: '#001A70' },
+  germany:     { flag: ['#1A1A1A','#CC0000','#FFCE00'], accent: '#CC0000', accentLight: '#FCE8E8', accentHover: '#A80000' },
+  italy:       { flag: ['#009246','#FFFFFF','#CE2B37'], accent: '#006F38', accentLight: '#E6F4ED', accentHover: '#005A2D' },
+  spain:       { flag: ['#9B1219','#F1BF00','#9B1219'], accent: '#9B1219', accentLight: '#FDF4E7', accentHover: '#7A0D13' },
+  netherlands: { flag: ['#AE1C28','#FFFFFF','#21468B'], accent: '#21468B', accentLight: '#E8EEF7', accentHover: '#193775' },
+  greece:      { flag: ['#0D5EAF','#FFFFFF','#0D5EAF'], accent: '#0D5EAF', accentLight: '#E5EEF8', accentHover: '#0A4C8E' },
+  switzerland: { flag: ['#C8102E','#FFFFFF','#C8102E'], accent: '#C8102E', accentLight: '#FCE8EB', accentHover: '#A00020' },
+  czech:       { flag: ['#D7141A','#FFFFFF','#11457E'], accent: '#11457E', accentLight: '#E5EEF8', accentHover: '#0D3863' },
+  portugal:    { flag: ['#006600','#FFFFFF','#FF0000'], accent: '#006600', accentLight: '#E6F2E6', accentHover: '#005200' },
+  austria:     { flag: ['#B22222','#FFFFFF','#B22222'], accent: '#B22222', accentLight: '#FCE8E8', accentHover: '#8B1A1A' },
+};
+
+function applyTheme(key) {
+  const theme = COUNTRY_THEMES[key] || COUNTRY_THEMES.france;
+  const root = document.documentElement;
+  root.style.setProperty('--accent', theme.accent);
+  root.style.setProperty('--accent-light', theme.accentLight);
+  root.style.setProperty('--accent-hover', theme.accentHover);
+  const stripes = document.querySelectorAll('.header-flag span');
+  theme.flag.forEach((color, i) => { if (stripes[i]) stripes[i].style.background = color; });
+  localStorage.setItem('selectedCountry', key);
+}
+
+const REQUIRED_DOCS = [
+  { id: 'passport', name: 'Passport (bio page + all stamped pages)', hint: 'Colour scan, valid 3+ months beyond return date, issued within last 10 years, 2+ blank pages' },
+  { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports — required regardless of whether they contain prior stamps' },
+  { id: 'photos', name: 'Passport-size Photographs (×2)', hint: '35mm × 45mm, white background, matte finish, recent (within 6 months)' },
+  { id: 'application_form', name: 'Signed Visa Application Form', hint: 'Completed and signed via embassy/VFS portal — confirm format for your destination country' },
+  { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose of visit, day-by-day itinerary, return intent to India, signed' },
+  { id: 'flight_itinerary', name: 'Flight Itinerary / Round-trip Booking', hint: 'Confirmed round-trip reservation — a dummy/hold ticket is acceptable for most consulates' },
+  { id: 'travel_insurance', name: 'Travel Medical Insurance', hint: 'Min €30,000 coverage, valid across ALL Schengen states for full trip duration' },
+  { id: 'accommodation', name: 'Hotel Bookings / Accommodation Proof', hint: 'Confirmed reservations covering every night of stay; must match itinerary dates exactly' },
+  { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Stamped/signed by bank; guideline ≈ €50–100/day of stay; shows regular activity, not a sudden lump sum' },
+  { id: 'itr', name: 'Income Tax Returns (ITR)', hint: 'Last 2–3 years, acknowledgement copies; demonstrates stable income history' },
+  { id: 'employment_proof', name: 'Employment Letter / Leave Approval', hint: 'On company letterhead — confirms role, salary, approved leave dates, and intent to return to work' },
+  { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips as corroborating income evidence' },
+  { id: 'ties_to_india', name: 'Proof of Ties to India (Return Intent)', hint: 'Any of: property ownership docs, vehicle RC, family ties (birth/marriage certs), business registration — proves you will return' },
+];
+
+const OPTIONAL_DOCS = [
+  { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan with dates and locations — strengthens application even if not mandatory', optional: true },
+  { id: 'form_16', name: 'Form 16 (Salaried Employees)', hint: 'TDS certificate from employer — corroborates ITR; especially useful for France, Germany', optional: true },
+  { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed/business owners: certificate of incorporation, trade license, or MSME registration', optional: true },
+  { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed/business owners: last 2–3 years; CA-certified balance sheet strengthens financial proof', optional: true },
+  { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC from institution + bonafide certificate + proof of enrollment', optional: true },
+  { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants: pension slip or bank credit of pension; sponsor letter if trip is funded by family member', optional: true },
+  { id: 'invitation_letter', name: 'Invitation / Host Letter', hint: 'If staying with friends or family — host must provide their ID, residence proof, and relationship confirmation; apostille required in some countries (e.g. Italy)', optional: true },
+  { id: 'noc_employer', name: 'NOC from Employer', hint: 'Some consulates request a separate No Objection Certificate in addition to the leave letter', optional: true },
+  { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'If applying as a couple or if spouse is a co-traveller', optional: true },
+  { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas significantly improve approval odds — include copies', optional: true },
+  { id: 'travel_itinerary_detail', name: 'Train / Bus / Ferry Bookings', hint: 'Inter-city or cross-border transport within Schengen — supports detailed itinerary', optional: true },
+  { id: 'property_docs', name: 'Property Ownership Documents', hint: 'Sale deed, property tax receipt, or registered agreement — strong proof of ties to India', optional: true },
+];
+
+let people = [];
+let activePersonId = null;
+
+function createPersonData(name) {
+  const id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const documents = {};
+  REQUIRED_DOCS.forEach(d => { documents[d.id] = { ...d, file: null, optional: false, printed: false }; });
+  OPTIONAL_DOCS.forEach(d => { documents[d.id] = { ...d, file: null, optional: true, printed: false }; });
+  return {
+    id, name, documents,
+    docOrder: {
+      required: REQUIRED_DOCS.map(d => d.id),
+      optional: OPTIONAL_DOCS.map(d => d.id),
+    }
+  };
+}
+
+function ap() { return people.find(p => p.id === activePersonId); }
+
+function init() {
+  const saved = localStorage.getItem('selectedCountry') || 'france';
+  const sel = document.getElementById('countrySelect');
+  if (sel) sel.value = saved;
+  applyTheme(saved);
+  const first = createPersonData('Person 1');
+  people.push(first);
+  activePersonId = first.id;
+  renderTabs();
+  renderAll();
+}
+
+/* ── TABS ── */
+
+function renderTabs() {
+  const bar = document.getElementById('tabsBar');
+  bar.innerHTML = '';
+
+  people.forEach(person => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (person.id === activePersonId ? ' active' : '');
+
+    const rr = person.docOrder.required.filter(id => person.documents[id]?.file || person.documents[id]?.printed).length;
+    const tot = person.docOrder.required.length;
+    const bc = rr === tot ? 'tab-badge complete' : 'tab-badge';
+
+    tab.innerHTML = `
+      <span>${esc(person.name)}</span>
+      <span class="${bc}">${rr}/${tot}</span>
+      ${people.length > 1 ? `<button class="tab-close" onclick="event.stopPropagation();removePerson('${person.id}')" title="Remove traveller">✕</button>` : ''}
+    `;
+    tab.addEventListener('click', () => { activePersonId = person.id; renderTabs(); renderAll(); });
+    tab.addEventListener('dblclick', (e) => { e.preventDefault(); openRenameModal(person.id); });
+    bar.appendChild(tab);
+  });
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'tab-add';
+  addBtn.textContent = '+';
+  addBtn.title = 'Add traveller';
+  addBtn.addEventListener('click', () => {
+    document.getElementById('newPersonName').value = '';
+    document.getElementById('addPersonModal').classList.add('open');
+    setTimeout(() => document.getElementById('newPersonName').focus(), 100);
+  });
+  bar.appendChild(addBtn);
+}
+
+function closeAddModal() { document.getElementById('addPersonModal').classList.remove('open'); }
+
+function confirmAddPerson() {
+  const name = document.getElementById('newPersonName').value.trim() || `Person ${people.length + 1}`;
+  const p = createPersonData(name);
+  people.push(p);
+  activePersonId = p.id;
+  closeAddModal();
+  renderTabs();
+  renderAll();
+  showToast(`Added "${name}"`);
+}
+
+document.getElementById('newPersonName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmAddPerson();
+  if (e.key === 'Escape') closeAddModal();
+});
+
+let renamingId = null;
+function openRenameModal(pid) {
+  renamingId = pid;
+  const p = people.find(x => x.id === pid);
+  document.getElementById('renameInput').value = p.name;
+  document.getElementById('renameModal').classList.add('open');
+  setTimeout(() => { const i = document.getElementById('renameInput'); i.focus(); i.select(); }, 100);
+}
+function closeRenameModal() { document.getElementById('renameModal').classList.remove('open'); renamingId = null; }
+function confirmRename() {
+  const name = document.getElementById('renameInput').value.trim();
+  if (!name || !renamingId) return;
+  const p = people.find(x => x.id === renamingId);
+  if (p) p.name = name;
+  closeRenameModal();
+  renderTabs();
+  renderAll();
+  showToast(`Renamed to "${name}"`);
+}
+document.getElementById('renameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmRename();
+  if (e.key === 'Escape') closeRenameModal();
+});
+
+function removePerson(pid) {
+  if (people.length <= 1) return;
+  const p = people.find(x => x.id === pid);
+  if (!confirm(`Remove "${p.name}" and all their documents?`)) return;
+  people = people.filter(x => x.id !== pid);
+  if (activePersonId === pid) activePersonId = people[0].id;
+  renderTabs(); renderAll();
+  showToast(`Removed "${p.name}"`);
+}
+
+/* ── DOCUMENT RENDERING ── */
+
+function renderAll() {
+  const p = ap(); if (!p) return;
+  renderList('requiredList', p.docOrder.required, p);
+  renderList('optionalList', p.docOrder.optional, p);
+  updateProgress();
+}
+
+function renderList(cid, ids, person) {
+  const c = document.getElementById(cid);
+  c.innerHTML = '';
+
+  ids.forEach(id => {
+    const doc = person.documents[id];
+    if (!doc) return;
+
+    const card = document.createElement('div');
+    const cls = ['doc-card'];
+    if (doc.file) cls.push('has-file');
+    if (doc.printed) cls.push('is-printed');
+    card.className = cls.join(' ');
+    card.draggable = true;
+    card.dataset.id = id;
+
+    card.addEventListener('dragstart', handleDragStart);
+    card.addEventListener('dragend', handleDragEnd);
+    card.addEventListener('dragover', handleDragOver);
+    card.addEventListener('dragleave', handleDragLeave);
+    card.addEventListener('drop', handleDrop);
+
+    const optB = doc.optional ? '<span class="optional-badge">Optional</span>' : '';
+    const prB = doc.printed ? '<span class="printed-badge"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Printed</span>' : '';
+
+    let fd;
+    if (doc.printed && !doc.file) fd = `<div class="doc-detail" style="color:#7C3AED;font-weight:500;">Already printed — skipped in export</div>`;
+    else if (doc.file) fd = `<div class="doc-detail file-name">${esc(doc.file.name)} (${fmtSz(doc.file.size)})</div>`;
+    else fd = `<div class="doc-detail">${esc(doc.hint || 'Upload PDF or image')}</div>`;
+
+    const pbc = doc.printed ? 'btn-printed active' : 'btn-printed';
+    const pbl = doc.printed ? '✓ Printed' : 'Printed';
+    const isCust = doc.optional && !OPTIONAL_DOCS.find(d => d.id === id);
+
+    card.innerHTML = `
+      <div class="drag-handle"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="3" r="1.5"/><circle cx="11" cy="3" r="1.5"/><circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/><circle cx="5" cy="13" r="1.5"/><circle cx="11" cy="13" r="1.5"/></svg></div>
+      <div class="doc-status"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="doc-info">
+        <div class="doc-name">${esc(doc.name)}${optB}${prB}</div>
+        ${fd}
+      </div>
+      <div class="doc-actions">
+        <button class="${pbc}" onclick="togglePrinted('${id}')" title="Already have a printed copy"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>${pbl}</button>
+        ${!doc.printed ? `<button class="btn-upload" onclick="triggerUpload('${id}')">${doc.file ? 'Replace' : 'Upload'}</button>` : ''}
+        ${doc.file ? `<button class="btn-remove" onclick="removeFile('${id}')">✕</button>` : ''}
+        ${isCust ? `<button class="btn-remove" onclick="removeDoc('${id}')" title="Remove">🗑</button>` : ''}
+      </div>`;
+    c.appendChild(card);
+  });
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function fmtSz(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return (b/1024).toFixed(1) + ' KB'; return (b/1048576).toFixed(1) + ' MB'; }
+
+function triggerUpload(id) {
+  const person = ap();
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.pdf,.jpg,.jpeg,.png,.webp'; inp.multiple = true;
+  inp.onchange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 1) {
+      person.documents[id].file = files[0];
+    } else if (files.length > 1) {
+      person.documents[id].file = { name: `${files.length} files selected`, size: files.reduce((a,f) => a + f.size, 0), _multi: files };
+    }
+    renderTabs(); renderAll();
+    showToast(`Uploaded to "${person.documents[id].name}"`);
+  };
+  inp.click();
+}
+
+function removeFile(id) { const p = ap(); p.documents[id].file = null; renderTabs(); renderAll(); }
+function removeDoc(id) { const p = ap(); delete p.documents[id]; p.docOrder.optional = p.docOrder.optional.filter(d => d !== id); renderTabs(); renderAll(); }
+function togglePrinted(id) {
+  const p = ap(); p.documents[id].printed = !p.documents[id].printed;
+  renderTabs(); renderAll();
+  if (p.documents[id].printed) showToast(`"${p.documents[id].name}" marked as printed`);
+}
+
+function addCustomDoc() {
+  const inp = document.getElementById('customName');
+  const name = inp.value.trim(); if (!name) return;
+  const p = ap();
+  const id = 'custom_' + Date.now();
+  p.documents[id] = { id, name, hint: 'Upload PDF or image', file: null, optional: true, printed: false };
+  p.docOrder.optional.push(id);
+  inp.value = '';
+  renderTabs(); renderAll();
+  showToast(`Added "${name}" for ${p.name}`);
+}
+
+document.getElementById('customName').addEventListener('keydown', e => { if (e.key === 'Enter') addCustomDoc(); });
+
+function updateProgress() {
+  const p = ap(); if (!p) return;
+  const all = [...p.docOrder.required, ...p.docOrder.optional];
+  const ready = all.filter(id => p.documents[id]?.file || p.documents[id]?.printed).length;
+  const rr = p.docOrder.required.filter(id => p.documents[id]?.file || p.documents[id]?.printed).length;
+  const printed = all.filter(id => p.documents[id]?.printed).length;
+  const uploaded = all.filter(id => p.documents[id]?.file && !p.documents[id]?.printed).length;
+  const tot = p.docOrder.required.length;
+
+  const pct = tot > 0 ? rr / tot : 0;
+  const circ = 2 * Math.PI * 20;
+  document.getElementById('progressCircle').style.strokeDashoffset = circ * (1 - pct);
+  document.getElementById('progressCount').textContent = `${rr}/${tot}`;
+
+  const lbl = document.getElementById('progressLabel');
+  const parts = [];
+  if (uploaded > 0) parts.push(`${uploaded} to export`);
+  if (printed > 0) parts.push(`${printed} printed`);
+  const sfx = parts.length ? ' — ' + parts.join(', ') : '';
+
+  if (ready === 0) lbl.textContent = `${p.name}: No documents yet`;
+  else if (rr === tot) lbl.textContent = `${p.name}: All required ready${sfx}`;
+  else lbl.textContent = `${p.name}: ${rr} of ${tot} required${sfx}`;
+
+  const hasExp = all.some(id => p.documents[id]?.file && !p.documents[id]?.printed);
+  document.getElementById('exportBtn').disabled = !hasExp;
+  document.getElementById('exportBtnLabel').textContent = people.length > 1 ? `Export ${p.name}` : 'Export PDF';
+
+  const anyExp = people.some(per => {
+    const ids = [...per.docOrder.required, ...per.docOrder.optional];
+    return ids.some(id => per.documents[id]?.file && !per.documents[id]?.printed);
+  });
+  const allBtn = document.getElementById('exportAllBtn');
+  allBtn.disabled = !anyExp;
+  allBtn.style.display = people.length > 1 ? '' : 'none';
+}
+
+/* ── DRAG ── */
+let dragId = null;
+function handleDragStart(e) { dragId = e.currentTarget.dataset.id; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+function handleDragEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over')); dragId = null; }
+function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('drag-over'); }
+function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  const tid = e.currentTarget.dataset.id;
+  if (!dragId || dragId === tid) return;
+  const p = ap();
+  for (const k of ['required','optional']) {
+    const l = p.docOrder[k]; const fi = l.indexOf(dragId); const ti = l.indexOf(tid);
+    if (fi !== -1 && ti !== -1) { l.splice(fi,1); l.splice(ti,0,dragId); renderAll(); return; }
+  }
+}
+
+/* ── PDF EXPORT ── */
+
+async function buildPersonPDF(person, merged, fr, fb) {
+  const { rgb } = PDFLib;
+  const dividers = document.getElementById('addDividers').checked;
+  const all = [...person.docOrder.required, ...person.docOrder.optional];
+  const uids = all.filter(id => person.documents[id]?.file && !person.documents[id]?.printed);
+  if (uids.length === 0) return;
+
+  const tp = merged.addPage([595.28, 841.89]);
+  tp.drawRectangle({ x:0, y:700, width:595.28, height:141.89, color: rgb(0.106,0.294,0.42) });
+  tp.drawText('Schengen Visa Application', { x:50, y:770, size:28, font:fb, color: rgb(1,1,1) });
+  tp.drawText(`${person.name} — Supporting Documents`, { x:50, y:740, size:16, font:fr, color: rgb(1,1,1) });
+  tp.drawText(`Generated: ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`, { x:50, y:710, size:11, font:fr, color: rgb(1,1,1) });
+
+  let ty = 660;
+  tp.drawText('Document Index', { x:50, y:ty, size:14, font:fb, color: rgb(0.1,0.09,0.07) });
+  ty -= 28;
+  for (let i = 0; i < uids.length; i++) {
+    tp.drawText(`${i+1}. ${person.documents[uids[i]].name}`, { x:56, y:ty, size:11, font:fr, color: rgb(0.3,0.28,0.25) });
+    ty -= 22; if (ty < 60) break;
+  }
+
+  for (let i = 0; i < uids.length; i++) {
+    const doc = person.documents[uids[i]];
+    const files = doc.file?._multi || [doc.file];
+
+    if (dividers) {
+      const dv = merged.addPage([595.28,841.89]);
+      dv.drawRectangle({ x:0, y:380, width:595.28, height:82, color: rgb(0.96,0.95,0.94) });
+      dv.drawText(`${i+1}`, { x:50, y:404, size:36, font:fb, color: rgb(0.106,0.294,0.42) });
+      dv.drawText(doc.name, { x:100, y:410, size:18, font:fb, color: rgb(0.1,0.09,0.07) });
+      if (doc.hint) dv.drawText(doc.hint, { x:100, y:390, size:11, font:fr, color: rgb(0.48,0.45,0.4) });
+    }
+
+    for (const file of files) {
+      if (!file || file._multi) continue;
+      try {
+        const bytes = await readFile(file);
+        const u8 = new Uint8Array(bytes);
+        const { PDFDocument } = PDFLib;
+        if (file.type === 'application/pdf' || file.name?.toLowerCase().endsWith('.pdf')) {
+          const src = await PDFDocument.load(u8, { ignoreEncryption: true });
+          (await merged.copyPages(src, src.getPageIndices())).forEach(pg => merged.addPage(pg));
+        } else {
+          const img = (file.type === 'image/png' || file.name?.toLowerCase().endsWith('.png'))
+            ? await merged.embedPng(u8) : await merged.embedJpg(u8);
+          const pg = merged.addPage([595.28,841.89]);
+          const { width, height } = img.scale(1);
+          const sc = Math.min(515.28/width, 761.89/height, 1);
+          pg.drawImage(img, { x:(595.28-width*sc)/2, y:(841.89-height*sc)/2, width:width*sc, height:height*sc });
+        }
+      } catch (err) {
+        console.error(err);
+        const ep = merged.addPage([595.28,841.89]);
+        ep.drawText(`Could not process: ${file.name}`, { x:50, y:420, size:14, font:fr, color: rgb(0.6,0.17,0.17) });
+      }
+    }
+  }
+}
+
+async function exportCurrentPDF() {
+  const person = ap();
+  const btn = document.getElementById('exportBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="export-spinner"></span> Building…';
+  try {
+    const { PDFDocument, StandardFonts } = PDFLib;
+    const m = await PDFDocument.create();
+    const fr = await m.embedFont(StandardFonts.Helvetica);
+    const fb = await m.embedFont(StandardFonts.HelveticaBold);
+    await buildPersonPDF(person, m, fr, fb);
+    if (m.getPageCount() === 0) { showToast('No documents to export'); return; }
+    dl(await m.save(), `Schengen_Visa_${san(person.name)}_${new Date().toISOString().slice(0,10)}.pdf`);
+    showToast(`PDF exported for ${person.name}`);
+  } catch (err) { console.error(err); showToast('Export failed'); }
+  finally { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span id="exportBtnLabel">${people.length>1?'Export '+ap().name:'Export PDF'}</span>`; updateProgress(); }
+}
+
+async function exportAllPDF() {
+  const btn = document.getElementById('exportAllBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="export-spinner"></span> Building…';
+  try {
+    const { PDFDocument, StandardFonts } = PDFLib;
+    const m = await PDFDocument.create();
+    const fr = await m.embedFont(StandardFonts.Helvetica);
+    const fb = await m.embedFont(StandardFonts.HelveticaBold);
+    for (const p of people) await buildPersonPDF(p, m, fr, fb);
+    if (m.getPageCount() === 0) { showToast('No documents to export'); return; }
+    dl(await m.save(), `Schengen_Visa_All_${new Date().toISOString().slice(0,10)}.pdf`);
+    showToast(`PDF exported for all ${people.length} travellers`);
+  } catch (err) { console.error(err); showToast('Export failed'); }
+  finally { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Export All`; updateProgress(); }
+}
+
+function dl(bytes, fn) {
+  const b = new Blob([bytes], { type: 'application/pdf' });
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a'); a.href = u; a.download = fn; a.click();
+  URL.revokeObjectURL(u);
+}
+function san(n) { return n.replace(/[^a-zA-Z0-9_\- ]/g,'').replace(/\s+/g,'_'); }
+function readFile(f) { return new Promise((res,rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsArrayBuffer(f); }); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+
+init();
+</script>
+</body>
+</html>

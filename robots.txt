@@ -1,0 +1,10 @@
+# Robots.txt for Schengen Visa Document Collator
+
+User-agent: *
+Allow: /
+
+# Sitemap location (update with your actual domain)
+Sitemap: https://visa-doc-collator.vercel.app/sitemap.xml
+
+# Disallow utility files
+Disallow: /generate-icons.html

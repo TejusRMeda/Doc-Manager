@@ -1,0 +1,3259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schengen Visa Document Collator</title>
+<meta name="description" content="Free tool to organize and merge all your Schengen visa documents into a single print-ready PDF.">
+<meta name="theme-color" content="#1B4B6B">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<link href="https://fonts.cdnfonts.com/css/switzer" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F6F4F0;
+    --surface: #FFFFFF;
+    --surface-alt: #EDE9E3;
+    --border: #D6D0C6;
+    --border-light: #E8E3DB;
+    --text: #1A1612;
+    --text-muted: #7A7267;
+    --text-light: #A69D91;
+    --accent: #1B4B6B;
+    --accent-light: #E8F0F6;
+    --accent-hover: #153D58;
+    --success: #2D6A4F;
+    --success-bg: #E8F5ED;
+    --success-border: #B7DBCA;
+    --warning: #B45309;
+    --warning-bg: #FEF3C7;
+    --danger: #9B2C2C;
+    --danger-bg: #FEE2E2;
+    --shadow-sm: 0 1px 2px rgba(26,22,18,0.06);
+    --shadow-md: 0 4px 12px rgba(26,22,18,0.08);
+    --shadow-lg: 0 8px 30px rgba(26,22,18,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Switzer', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--accent);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    pointer-events: none;
+  }
+
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 28px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-flag {
+    display: flex;
+    gap: 3px;
+  }
+
+  .header-flag span {
+    width: 4px;
+    height: 22px;
+    border-radius: 2px;
+  }
+
+  .flag-blue { background: #002395; }
+  .flag-white { background: #FFFFFF; }
+  .flag-red { background: #ED2939; }
+
+  .header { transition: background-color 0.45s ease; }
+
+  .header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  .header p {
+    font-size: 14px;
+    opacity: 0.7;
+    font-weight: 300;
+  }
+
+  /* Country Selector */
+  .country-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .country-selector label {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  .country-select {
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    outline: none;
+  }
+
+  .country-select:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .country-select option {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* Tabs */
+  .tabs-bar {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border-bottom: 2px solid var(--border-light);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .tab {
+    padding: 14px 20px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .tab:hover { color: var(--text); background: var(--surface-alt); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  .tab .tab-badge {
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--border-light);
+    color: var(--text-muted);
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .tab.active .tab-badge { background: var(--accent-light); color: var(--accent); }
+  .tab-badge.complete { background: var(--success-bg) !important; color: var(--success) !important; }
+
+  .tab-add {
+    padding: 14px 16px 12px;
+    font-size: 18px;
+    font-weight: 400;
+    font-family: inherit;
+    color: var(--text-light);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .tab-add:hover { color: var(--accent); background: var(--accent-light); }
+
+  .tab-close, .tab-rename {
+    display: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: none;
+    background: none;
+    color: var(--text-light);
+    font-size: 12px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+
+  .tab:hover .tab-close, .tab:hover .tab-rename { display: flex; }
+  .tab-close:hover { background: var(--danger-bg); color: var(--danger); }
+  .tab-rename:hover { background: var(--accent-light); color: var(--accent); }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 28px 60px;
+  }
+
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 0 24px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 28px;
+  }
+
+  .progress-ring {
+    width: 48px; height: 48px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .progress-ring svg { transform: rotate(-90deg); }
+  .progress-ring-bg { stroke: var(--border-light); fill: none; stroke-width: 4; }
+  .progress-ring-fill { stroke: var(--success); fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+
+  .progress-count {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 13px; font-weight: 600; color: var(--text);
+  }
+
+  .progress-text { font-size: 14px; color: var(--text-muted); }
+  .progress-text strong { color: var(--text); font-weight: 600; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-light);
+    margin-bottom: 12px; padding-left: 2px;
+  }
+
+  .doc-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+
+  .doc-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px;
+    transition: all 0.2s ease;
+    cursor: default; position: relative;
+  }
+
+  .doc-card:hover { border-color: var(--border); box-shadow: var(--shadow-sm); }
+  .doc-card.has-file { border-color: var(--success-border); background: var(--success-bg); }
+  .doc-card.has-file .doc-status { background: var(--success); border-color: var(--success); }
+  .doc-card.has-file .doc-status svg { opacity: 1; }
+  .doc-card.is-printed { border-color: #C4B5FD; background: #F5F3FF; }
+  .doc-card.is-printed .doc-status { background: #7C3AED; border-color: #7C3AED; }
+  .doc-card.is-printed .doc-status svg { opacity: 1; }
+
+  .btn-printed {
+    padding: 5px 10px; font-size: 11px; font-weight: 500; font-family: inherit;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-muted);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease;
+    display: flex; align-items: center; gap: 5px; white-space: nowrap;
+  }
+  .btn-printed:hover { border-color: #C4B5FD; background: #F5F3FF; color: #7C3AED; }
+  .btn-printed.active { border-color: #C4B5FD; background: #7C3AED; color: white; }
+
+  .printed-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 500; color: #7C3AED; background: #EDE9FE;
+    padding: 2px 7px; border-radius: 3px; margin-left: 6px; vertical-align: middle;
+  }
+  .printed-badge svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+  .doc-status {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+  .doc-status svg { width: 14px; height: 14px; stroke: white; stroke-width: 2.5; fill: none; opacity: 0; transition: opacity 0.2s ease; }
+
+  .doc-info { flex: 1; min-width: 0; }
+  .doc-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .doc-detail { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doc-detail.file-name { color: var(--success); font-weight: 500; }
+  .doc-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  .btn-upload {
+    padding: 7px 14px; font-size: 12px; font-weight: 500; font-family: inherit;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease;
+  }
+  .btn-upload:hover { background: var(--surface-alt); }
+  .has-file .btn-upload { border-color: var(--success-border); background: white; }
+
+  .btn-remove {
+    padding: 7px 10px; font-size: 12px; font-family: inherit;
+    border: 1px solid transparent; background: none; color: var(--text-light);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease;
+  }
+  .btn-remove:hover { color: var(--danger); background: var(--danger-bg); }
+
+  .doc-card .drag-handle { cursor: grab; color: var(--text-light); padding: 4px; flex-shrink: 0; opacity: 0.4; transition: opacity 0.15s; }
+  .doc-card:hover .drag-handle { opacity: 0.8; }
+  .doc-card.dragging { opacity: 0.5; transform: scale(0.98); }
+  .doc-card.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-light); }
+
+  .optional-badge {
+    display: inline-block; font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-light); background: var(--surface-alt);
+    padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle;
+  }
+
+  .add-custom { display: flex; gap: 8px; margin-bottom: 32px; }
+  .add-custom input {
+    flex: 1; padding: 10px 14px; font-size: 13px; font-family: inherit;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s;
+  }
+  .add-custom input::placeholder { color: var(--text-light); }
+  .add-custom input:focus { border-color: var(--accent); }
+  .add-custom button {
+    padding: 10px 18px; font-size: 13px; font-weight: 500; font-family: inherit;
+    border: 1px solid var(--accent); background: var(--accent); color: white;
+    border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; white-space: nowrap;
+  }
+  .add-custom button:hover { background: var(--accent-hover); }
+
+  .export-section {
+    position: sticky; bottom: 0;
+    background: linear-gradient(transparent, var(--bg) 20%);
+    padding: 30px 0 10px;
+    margin: 0 -28px; padding-left: 28px; padding-right: 28px;
+  }
+
+  .export-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .export-options { display: flex; align-items: center; gap: 14px; flex: 1; }
+
+  .toggle-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-muted); cursor: pointer; user-select: none;
+  }
+  .toggle-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  .btn-export {
+    padding: 14px 24px; font-size: 14px; font-weight: 600; font-family: inherit;
+    border: none; background: var(--accent); color: white;
+    border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease;
+    box-shadow: var(--shadow-md);
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .btn-export:hover:not(:disabled) { background: var(--accent-hover); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+  .btn-export:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-export svg { width: 18px; height: 18px; }
+
+  .btn-export-all {
+    padding: 14px 24px; font-size: 14px; font-weight: 600; font-family: inherit;
+    border: 2px solid var(--accent); background: transparent; color: var(--accent);
+    border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .btn-export-all:hover:not(:disabled) { background: var(--accent-light); }
+  .btn-export-all:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-export-all svg { width: 18px; height: 18px; }
+
+  .btn-preview {
+    padding: 14px 24px; font-size: 14px; font-weight: 600; font-family: inherit;
+    border: 2px solid var(--accent); background: var(--accent-light); color: var(--accent);
+    border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .btn-preview:hover:not(:disabled) { background: var(--accent); color: white; box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .btn-preview:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-preview svg { width: 18px; height: 18px; }
+
+  /* PDF Preview Modal - Immersive Full-Screen */
+  .preview-overlay {
+    position: fixed; inset: 0; background: #0a0a0b;
+    z-index: 500; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .preview-overlay.open { opacity: 1; pointer-events: all; }
+
+  .preview-modal {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    background: #0a0a0b;
+  }
+
+  .preview-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+    background: linear-gradient(180deg, rgba(20,20,22,0.98) 0%, rgba(10,10,11,0.95) 100%);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0; gap: 16px;
+    backdrop-filter: blur(12px);
+  }
+
+  .preview-header-left {
+    display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0;
+  }
+
+  .preview-toggle-sidebar {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .preview-toggle-sidebar:hover { background: rgba(255,255,255,0.12); color: #fff; }
+  .preview-toggle-sidebar.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .preview-toggle-sidebar svg { width: 18px; height: 18px; }
+
+  .preview-title {
+    font-size: 14px; font-weight: 500; color: #fff;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .preview-title span { color: rgba(255,255,255,0.5); font-weight: 400; }
+
+  .preview-header-actions { display: flex; gap: 10px; flex-shrink: 0; }
+
+  .preview-btn {
+    padding: 10px 18px; font-size: 13px; font-weight: 500; font-family: inherit;
+    border-radius: 10px; cursor: pointer; transition: all 0.2s ease;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .preview-btn svg { width: 16px; height: 16px; }
+
+  .preview-btn-secondary {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.8);
+  }
+  .preview-btn-secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+  .preview-btn-primary {
+    background: var(--accent); border: none; color: #fff;
+    box-shadow: 0 4px 12px rgba(27,75,107,0.4);
+  }
+  .preview-btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+  .preview-body {
+    display: flex; flex: 1; overflow: hidden; position: relative;
+  }
+
+  .preview-sidebar {
+    width: 300px; flex-shrink: 0;
+    background: linear-gradient(180deg, #141416 0%, #0f0f10 100%);
+    border-right: 1px solid rgba(255,255,255,0.08);
+    display: flex; flex-direction: column; overflow: hidden;
+    transform: translateX(0); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .preview-sidebar.collapsed {
+    width: 0; transform: translateX(-300px);
+  }
+
+  .preview-sidebar-header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .preview-sidebar-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.1em; color: rgba(255,255,255,0.4);
+  }
+  .preview-doc-count {
+    font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px;
+  }
+
+  .preview-doc-list {
+    flex: 1; overflow-y: auto; padding: 12px;
+  }
+  .preview-doc-list::-webkit-scrollbar { width: 6px; }
+  .preview-doc-list::-webkit-scrollbar-track { background: transparent; }
+  .preview-doc-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+  .preview-doc-list::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+  .preview-doc-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px; border-radius: 12px;
+    cursor: pointer; transition: all 0.2s ease; margin-bottom: 6px;
+    border: 1px solid transparent; position: relative;
+  }
+  .preview-doc-item::before {
+    content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 0; background: var(--accent); border-radius: 0 2px 2px 0;
+    transition: height 0.2s ease;
+  }
+  .preview-doc-item:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .preview-doc-item.active {
+    background: rgba(27,75,107,0.2);
+    border-color: rgba(27,75,107,0.4);
+  }
+  .preview-doc-item.active::before { height: 24px; }
+
+  .preview-doc-thumb {
+    width: 52px; height: 68px; border-radius: 8px; overflow: hidden;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+  .preview-doc-item:hover .preview-doc-thumb { border-color: rgba(255,255,255,0.2); }
+  .preview-doc-item.active .preview-doc-thumb { border-color: var(--accent); }
+  .preview-doc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .preview-doc-thumb svg { width: 22px; height: 22px; color: rgba(255,255,255,0.4); }
+
+  .preview-doc-info { flex: 1; min-width: 0; }
+  .preview-doc-name {
+    font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.9);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+  .preview-doc-meta {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .preview-doc-pages {
+    font-size: 11px; color: rgba(255,255,255,0.4);
+  }
+  .preview-doc-type {
+    font-size: 9px; font-weight: 600; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 4px;
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5);
+  }
+  .preview-doc-type.pdf { background: rgba(239,68,68,0.15); color: #f87171; }
+  .preview-doc-type.image { background: rgba(34,197,94,0.15); color: #4ade80; }
+
+  .preview-main {
+    flex: 1; display: flex; flex-direction: column; min-width: 0;
+    background: #1a1a1c;
+  }
+
+  .preview-frame {
+    flex: 1; width: 100%; border: none;
+    background: #2a2a2c; display: block;
+  }
+
+  .preview-loading {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+    color: rgba(255,255,255,0.5); font-size: 14px;
+  }
+  .preview-loading .export-spinner {
+    width: 32px; height: 32px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: var(--accent);
+  }
+
+  /* Keyboard hint */
+  .preview-kbd-hint {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 16px; padding: 10px 20px;
+    background: rgba(0,0,0,0.6); border-radius: 10px;
+    backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px; color: rgba(255,255,255,0.5);
+    opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+  }
+  .preview-overlay.open .preview-kbd-hint { opacity: 1; animation: fadeOutHint 0.5s ease 3s forwards; }
+  @keyframes fadeOutHint { to { opacity: 0; } }
+  .preview-kbd-hint kbd {
+    padding: 2px 6px; background: rgba(255,255,255,0.15);
+    border-radius: 4px; font-family: inherit; font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .preview-sidebar {
+      position: absolute; left: 0; top: 0; bottom: 0; z-index: 10;
+      width: 280px; box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    }
+    .preview-sidebar.collapsed { transform: translateX(-100%); }
+    .preview-modal { max-width: 100vw; }
+    .preview-header { padding: 12px 16px; }
+    .preview-kbd-hint { display: none; }
+  }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text); color: white;
+    padding: 12px 24px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500;
+    box-shadow: var(--shadow-lg); transition: transform 0.3s ease; z-index: 100;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .export-spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+    border-radius: 50%; animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    background: var(--surface); border-radius: 14px; padding: 28px;
+    width: 360px; max-width: 90vw; box-shadow: var(--shadow-lg);
+    transform: scale(0.95); transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .modal p { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+  .modal input, .modal textarea, .modal select {
+    width: 100%; padding: 10px 14px; font-size: 14px; font-family: inherit;
+    border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; margin-bottom: 12px;
+  }
+  .modal textarea { min-height: 80px; resize: vertical; }
+  .modal input:focus, .modal textarea:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+  .modal-actions button {
+    padding: 9px 18px; font-size: 13px; font-weight: 500; font-family: inherit;
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+  }
+  .modal-btn-cancel { border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); }
+  .modal-btn-cancel:hover { background: var(--surface-alt); }
+  .modal-btn-confirm { border: none; background: var(--accent); color: white; }
+  .modal-btn-confirm:hover { background: var(--accent-hover); }
+
+  /* Feedback Button */
+  .feedback-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 90;
+  }
+  .feedback-btn:hover {
+    transform: scale(1.1);
+    background: var(--accent-hover);
+  }
+  .feedback-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 600px) {
+    .header-inner { padding: 20px 20px 16px; }
+    .header h1 { font-size: 22px; }
+    .header-top { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .tabs-bar { padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tab { padding: 12px 14px 10px; font-size: 12px; }
+    .container { padding: 20px 20px 60px; }
+    .doc-card { padding: 14px; gap: 10px; }
+    .export-bar { flex-direction: column; }
+    .export-options { width: 100%; }
+    .btn-export, .btn-export-all, .btn-preview { width: 100%; justify-content: center; }
+    .export-section { margin: 0 -20px; padding-left: 20px; padding-right: 20px; }
+    .feedback-btn { bottom: 16px; right: 16px; width: 44px; height: 44px; }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     START SCREEN - Template vs Custom Selection
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  .start-screen {
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--bg) 0%, #fff 50%, var(--bg) 100%);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .start-screen.hidden { display: none; }
+  .main-app.hidden { display: none; }
+
+  .start-header {
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .start-header-flag {
+    display: flex;
+    gap: 3px;
+  }
+
+  .start-header-flag span {
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+  }
+
+  .start-header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .start-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px 80px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .start-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 400;
+    text-align: center;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .start-subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .start-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .start-option {
+    background: var(--surface);
+    border: 2px solid var(--border-light);
+    border-radius: 16px;
+    padding: 32px 28px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+  }
+
+  .start-option:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+  }
+
+  .start-option-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--accent-light);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+
+  .start-option-icon svg {
+    width: 32px;
+    height: 32px;
+    color: var(--accent);
+  }
+
+  .start-option h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .start-option p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Template Selection */
+  .template-select {
+    display: none;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .template-select.active { display: block; }
+
+  .template-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 24px;
+    font-family: inherit;
+  }
+
+  .template-back:hover { color: var(--accent); }
+  .template-back svg { width: 18px; height: 18px; }
+
+  .template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .template-card {
+    background: var(--surface);
+    border: 2px solid var(--border-light);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+
+  .template-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .template-card-flag {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .template-card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .template-card p {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Custom List Builder */
+  .custom-builder {
+    display: none;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .custom-builder.active { display: block; }
+
+  .custom-builder-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .custom-add-form {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .custom-add-form label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .custom-add-form input,
+  .custom-add-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .custom-add-form input:focus,
+  .custom-add-form textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .custom-add-form textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  .custom-add-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .custom-add-btn:hover { background: var(--accent-hover); }
+
+  .custom-list {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    min-height: 120px;
+    margin-bottom: 20px;
+  }
+
+  .custom-list-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 14px;
+  }
+
+  .custom-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-light);
+    cursor: grab;
+    transition: background 0.15s;
+  }
+
+  .custom-list-item:last-child { border-bottom: none; }
+  .custom-list-item:hover { background: var(--surface-alt); }
+  .custom-list-item.dragging { opacity: 0.5; }
+  .custom-list-item.drag-over { background: var(--accent-light); }
+
+  .custom-list-item .drag-handle {
+    color: var(--text-light);
+    flex-shrink: 0;
+  }
+
+  .custom-list-item .drag-handle svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .custom-list-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .custom-list-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .custom-list-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .custom-list-remove {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: var(--text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .custom-list-remove:hover {
+    background: var(--danger-bg);
+    color: var(--danger);
+  }
+
+  .custom-list-remove svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .custom-start-btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .custom-start-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .custom-start-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .custom-start-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Paste List Feature */
+  .paste-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px dashed var(--accent);
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+  }
+
+  .paste-toggle:hover {
+    background: var(--accent);
+    color: white;
+    border-style: solid;
+  }
+
+  .paste-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .paste-section {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .paste-section.active {
+    display: block;
+  }
+
+  .paste-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .paste-section-header h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .paste-close {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .paste-close:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+  }
+
+  .paste-close svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .paste-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .paste-textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 14px;
+    font-size: 13px;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    resize: vertical;
+    outline: none;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+
+  .paste-textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .paste-textarea::placeholder {
+    color: var(--text-light);
+  }
+
+  .paste-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .paste-parse-btn {
+    flex: 1;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+
+  .paste-parse-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
+
+  .paste-parse-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .paste-parse-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .paste-preview {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .paste-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .paste-preview-header h5 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .paste-preview-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .paste-preview-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .paste-preview-item {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .paste-preview-item:last-child {
+    border-bottom: none;
+  }
+
+  .paste-preview-item .preview-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    background: var(--surface-alt);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .paste-preview-item .preview-text {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .paste-add-all-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.15s;
+  }
+
+  .paste-add-all-btn:hover {
+    filter: brightness(1.1);
+  }
+
+  .paste-add-all-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 600px) {
+    .start-options {
+      grid-template-columns: 1fr;
+    }
+    .start-content {
+      padding: 24px 20px 60px;
+    }
+    .template-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- START SCREEN - Template vs Custom Selection -->
+<div class="start-screen" id="startScreen">
+  <div class="start-header">
+    <div class="start-header-flag">
+      <span class="flag-blue"></span>
+      <span class="flag-white"></span>
+      <span class="flag-red"></span>
+    </div>
+    <h1>Schengen Visa Document Collator</h1>
+  </div>
+
+  <div class="start-content">
+    <h2 class="start-title">How would you like to organize your documents?</h2>
+    <p class="start-subtitle">Choose a pre-made template for your destination country, or create your own custom checklist</p>
+
+    <!-- Initial Options -->
+    <div class="start-options" id="startOptions">
+      <div class="start-option" onclick="showTemplateSelect()">
+        <div class="start-option-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <line x1="10" y1="9" x2="8" y2="9"/>
+          </svg>
+        </div>
+        <h3>Use a Template</h3>
+        <p>Country-specific document checklists based on official embassy requirements</p>
+      </div>
+
+      <div class="start-option" onclick="showCustomBuilder()">
+        <div class="start-option-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+        <h3>Create Custom List</h3>
+        <p>Build your own document checklist with custom names, order, and descriptions</p>
+      </div>
+    </div>
+
+    <!-- Template Selection -->
+    <div class="template-select" id="templateSelect">
+      <button class="template-back" onclick="showStartOptions()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Back to options
+      </button>
+
+      <h3 style="font-size: 18px; margin-bottom: 20px; color: var(--text);">Select your destination country</h3>
+
+      <div class="template-grid" id="templateGrid">
+        <!-- Country cards will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Custom List Builder -->
+    <div class="custom-builder" id="customBuilder">
+      <div class="custom-builder-header">
+        <button class="template-back" onclick="showStartOptions()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back to options
+        </button>
+      </div>
+
+      <h3 style="font-size: 18px; margin-bottom: 20px; color: var(--text);">Create your custom document list</h3>
+
+      <!-- Paste List Toggle -->
+      <button class="paste-toggle" onclick="togglePasteSection()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        Paste list from website
+      </button>
+
+      <!-- Paste Section (hidden by default) -->
+      <div class="paste-section" id="pasteSection">
+        <div class="paste-section-header">
+          <h4>Paste Document List</h4>
+          <button class="paste-close" onclick="togglePasteSection()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <p class="paste-hint">Copy the document requirements from VFS, embassy, or any website and paste below. Each line will become a document item.</p>
+        <textarea class="paste-textarea" id="pasteTextarea" placeholder="Paste your document list here...
+
+Example:
+2 Two recent photographs (35mmx45mm)
+Copy of the First and last page of the passport
+Copy of Valid UK Visa
+UK address proof
+VFS Declaration Form"></textarea>
+        <div class="paste-actions">
+          <button class="paste-parse-btn" onclick="parsePastedList()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+              <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+            </svg>
+            Parse List
+          </button>
+        </div>
+
+        <div class="paste-preview" id="pastePreview" style="display: none;">
+          <div class="paste-preview-header">
+            <h5>Preview</h5>
+            <span class="paste-preview-count" id="pastePreviewCount">0 items</span>
+          </div>
+          <div class="paste-preview-list" id="pastePreviewList"></div>
+          <button class="paste-add-all-btn" onclick="addAllParsedItems()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Add All to List
+          </button>
+        </div>
+      </div>
+
+      <div class="custom-add-form">
+        <label for="customDocName">Document Name *</label>
+        <input type="text" id="customDocName" placeholder="e.g., Passport Copy">
+
+        <label for="customDocHint">Description / Hint (optional)</label>
+        <textarea id="customDocHint" placeholder="e.g., First and last page, valid for at least 6 months"></textarea>
+
+        <button class="custom-add-btn" onclick="addCustomListItem()">+ Add to List</button>
+      </div>
+
+      <div class="custom-list" id="customList">
+        <div class="custom-list-empty">Your document list is empty. Add documents above.</div>
+      </div>
+
+      <button class="custom-start-btn" id="customStartBtn" onclick="startWithCustomList()" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m12 5 7 7-7 7"/>
+        </svg>
+        Start Organizing
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP (hidden initially) -->
+<div class="main-app hidden" id="mainApp">
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="header-brand">
+        <div class="header-flag">
+          <span class="flag-blue"></span>
+          <span class="flag-white"></span>
+          <span class="flag-red"></span>
+        </div>
+        <h1>Schengen Visa Document Collator</h1>
+      </div>
+      <div class="country-selector">
+        <label for="countrySelect">Destination:</label>
+        <select id="countrySelect" class="country-select" onchange="changeCountry(this.value)">
+          <option value="france">🇫🇷 France</option>
+          <option value="germany">🇩🇪 Germany</option>
+          <option value="italy">🇮🇹 Italy</option>
+          <option value="spain">🇪🇸 Spain</option>
+          <option value="netherlands">🇳🇱 Netherlands</option>
+          <option value="greece">🇬🇷 Greece</option>
+          <option value="switzerland">🇨🇭 Switzerland</option>
+          <option value="czech">🇨🇿 Czech Republic</option>
+          <option value="portugal">🇵🇹 Portugal</option>
+          <option value="austria">🇦🇹 Austria</option>
+          <option value="generic">🇪🇺 Other Schengen</option>
+        </select>
+      </div>
+    </div>
+    <p>Upload supporting documents per traveller, reorder, and export as print-ready PDFs</p>
+  </div>
+</div>
+
+<div class="tabs-bar" id="tabsBar"></div>
+
+<div class="container">
+  <div class="progress-bar">
+    <div class="progress-ring">
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <circle class="progress-ring-bg" cx="24" cy="24" r="20"/>
+        <circle class="progress-ring-fill" cx="24" cy="24" r="20" stroke-dasharray="125.66" stroke-dashoffset="125.66" id="progressCircle"/>
+      </svg>
+      <span class="progress-count" id="progressCount">0/0</span>
+    </div>
+    <div class="progress-text">
+      <strong id="progressLabel">No documents uploaded yet</strong>
+    </div>
+  </div>
+
+  <div class="section-label">Required Documents</div>
+  <div class="doc-list" id="requiredList"></div>
+
+  <div class="section-label">Optional / Additional</div>
+  <div class="doc-list" id="optionalList"></div>
+
+  <div class="add-custom">
+    <input type="text" id="customName" placeholder="Add a custom document (e.g. NOC from employer)">
+    <button onclick="addCustomDoc()">+ Add</button>
+  </div>
+
+  <div class="export-section">
+    <div class="export-bar">
+      <!-- Dividers: shown in preview for organization, hidden in export -->
+      <input type="hidden" id="addDividers" checked>
+      <button class="btn-preview" id="previewBtn" onclick="previewCurrentPDF()" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+        Preview PDF
+      </button>
+      <button class="btn-export-all" id="exportAllBtn" onclick="exportAllPDF()" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Export All
+      </button>
+      <button class="btn-export" id="exportBtn" onclick="exportCurrentPDF()" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span id="exportBtnLabel">Export PDF</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF Preview Modal - Immersive Viewer -->
+<div class="preview-overlay" id="previewOverlay">
+  <div class="preview-modal">
+    <div class="preview-header">
+      <div class="preview-header-left">
+        <button class="preview-toggle-sidebar active" id="previewToggleSidebar" onclick="togglePreviewSidebar()" title="Toggle sidebar (B)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>
+          </svg>
+        </button>
+        <span class="preview-title" id="previewTitle">PDF Preview <span>— Ready to export</span></span>
+      </div>
+      <div class="preview-header-actions">
+        <button class="preview-btn preview-btn-secondary" onclick="closePreviewModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Close
+        </button>
+        <button class="preview-btn preview-btn-primary" onclick="downloadFromPreview()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download PDF
+        </button>
+      </div>
+    </div>
+    <div class="preview-body">
+      <div class="preview-sidebar" id="previewSidebar">
+        <div class="preview-sidebar-header">
+          <span class="preview-sidebar-title">Documents</span>
+          <span class="preview-doc-count" id="previewDocCount">0 docs</span>
+        </div>
+        <div class="preview-doc-list" id="previewDocList"></div>
+      </div>
+      <div class="preview-main">
+        <iframe class="preview-frame" id="previewFrame" title="PDF Preview"></iframe>
+      </div>
+    </div>
+    <div class="preview-kbd-hint">
+      <span><kbd>Esc</kbd> Close</span>
+      <span><kbd>B</kbd> Toggle sidebar</span>
+      <span><kbd>↑↓</kbd> Navigate docs</span>
+    </div>
+  </div>
+</div>
+
+<!-- Add Person Modal -->
+<div class="modal-overlay" id="addPersonModal">
+  <div class="modal">
+    <h3>Add Traveller</h3>
+    <p>Enter the traveller's name. Each person gets their own document checklist.</p>
+    <input type="text" id="newPersonName" placeholder="e.g. Priya, John…">
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="modal-btn-confirm" onclick="confirmAddPerson()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Rename Modal -->
+<div class="modal-overlay" id="renameModal">
+  <div class="modal">
+    <h3>Rename Traveller</h3>
+    <p>Update the name for this traveller's tab.</p>
+    <input type="text" id="renameInput">
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeRenameModal()">Cancel</button>
+      <button class="modal-btn-confirm" onclick="confirmRename()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal-overlay" id="feedbackModal">
+  <div class="modal">
+    <h3>Share Your Feedback</h3>
+    <p>Help us improve this tool! Your feedback is anonymous.</p>
+    <select id="feedbackType">
+      <option value="suggestion">💡 Suggestion</option>
+      <option value="bug">🐛 Bug Report</option>
+      <option value="praise">❤️ I love it!</option>
+      <option value="other">💬 Other</option>
+    </select>
+    <textarea id="feedbackText" placeholder="Tell us what's on your mind..."></textarea>
+    <input type="email" id="feedbackEmail" placeholder="Email (optional, for follow-up)">
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeFeedbackModal()">Cancel</button>
+      <button class="modal-btn-confirm" onclick="submitFeedback()">Send Feedback</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Button -->
+<button class="feedback-btn" onclick="openFeedbackModal()" title="Send Feedback">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+  </svg>
+</button>
+
+</div><!-- END main-app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   START SCREEN - Template vs Custom Selection Flow
+   ══════════════════════════════════════════════════════════════════════════ */
+
+let customDocuments = [];
+let draggedItem = null;
+
+function showStartOptions() {
+  document.getElementById('startOptions').style.display = 'grid';
+  document.getElementById('templateSelect').classList.remove('active');
+  document.getElementById('customBuilder').classList.remove('active');
+}
+
+function showTemplateSelect() {
+  document.getElementById('startOptions').style.display = 'none';
+  document.getElementById('templateSelect').classList.add('active');
+  document.getElementById('customBuilder').classList.remove('active');
+  populateTemplateGrid();
+}
+
+function showCustomBuilder() {
+  document.getElementById('startOptions').style.display = 'none';
+  document.getElementById('templateSelect').classList.remove('active');
+  document.getElementById('customBuilder').classList.add('active');
+}
+
+function populateTemplateGrid() {
+  const grid = document.getElementById('templateGrid');
+  const countries = [
+    { code: 'france', flag: '🇫🇷', name: 'France', docs: '13 documents' },
+    { code: 'germany', flag: '🇩🇪', name: 'Germany', docs: '12 documents' },
+    { code: 'italy', flag: '🇮🇹', name: 'Italy', docs: '13 documents' },
+    { code: 'spain', flag: '🇪🇸', name: 'Spain', docs: '12 documents' },
+    { code: 'netherlands', flag: '🇳🇱', name: 'Netherlands', docs: '13 documents' },
+    { code: 'greece', flag: '🇬🇷', name: 'Greece', docs: '12 documents' },
+    { code: 'switzerland', flag: '🇨🇭', name: 'Switzerland', docs: '13 documents' },
+    { code: 'czech', flag: '🇨🇿', name: 'Czech Republic', docs: '12 documents' },
+    { code: 'portugal', flag: '🇵🇹', name: 'Portugal', docs: '12 documents' },
+    { code: 'austria', flag: '🇦🇹', name: 'Austria', docs: '12 documents' },
+    { code: 'generic', flag: '🇪🇺', name: 'Other Schengen', docs: '12 documents' },
+  ];
+
+  grid.innerHTML = countries.map(c => `
+    <div class="template-card" onclick="selectTemplate('${c.code}')">
+      <div class="template-card-flag">${c.flag}</div>
+      <h4>${c.name}</h4>
+      <p>${c.docs}</p>
+    </div>
+  `).join('');
+}
+
+function selectTemplate(countryCode) {
+  // Hide start screen, show main app
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+
+  // Set the country and initialize
+  document.getElementById('countrySelect').value = countryCode;
+  changeCountry(countryCode);
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+function addCustomListItem() {
+  const nameInput = document.getElementById('customDocName');
+  const hintInput = document.getElementById('customDocHint');
+
+  const name = nameInput.value.trim();
+  const hint = hintInput.value.trim();
+
+  if (!name) {
+    nameInput.focus();
+    return;
+  }
+
+  const doc = {
+    id: 'custom_' + Date.now(),
+    name: name,
+    hint: hint || ''
+  };
+
+  customDocuments.push(doc);
+  renderCustomList();
+
+  // Clear inputs
+  nameInput.value = '';
+  hintInput.value = '';
+  nameInput.focus();
+
+  updateCustomStartButton();
+}
+
+function removeCustomListItem(id) {
+  customDocuments = customDocuments.filter(d => d.id !== id);
+  renderCustomList();
+  updateCustomStartButton();
+}
+
+function renderCustomList() {
+  const list = document.getElementById('customList');
+
+  if (customDocuments.length === 0) {
+    list.innerHTML = `<div class="custom-list-empty">Your document list is empty. Add documents above.</div>`;
+    return;
+  }
+
+  list.innerHTML = customDocuments.map((doc, index) => `
+    <div class="custom-list-item" draggable="true" data-id="${doc.id}" data-index="${index}">
+      <span class="drag-handle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+          <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+        </svg>
+      </span>
+      <div class="custom-list-info">
+        <div class="custom-list-name">${doc.name}</div>
+        ${doc.hint ? `<div class="custom-list-hint">${doc.hint}</div>` : ''}
+      </div>
+      <button class="custom-list-remove" onclick="removeCustomListItem('${doc.id}')" title="Remove">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  `).join('');
+
+  // Add drag and drop handlers
+  initCustomListDragDrop();
+}
+
+function initCustomListDragDrop() {
+  const items = document.querySelectorAll('.custom-list-item');
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', handleDragStart);
+    item.addEventListener('dragover', handleDragOver);
+    item.addEventListener('dragenter', handleDragEnter);
+    item.addEventListener('dragleave', handleDragLeave);
+    item.addEventListener('drop', handleDrop);
+    item.addEventListener('dragend', handleDragEnd);
+  });
+}
+
+function handleDragStart(e) {
+  draggedItem = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', this.dataset.index);
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDragEnter(e) {
+  e.preventDefault();
+  if (this !== draggedItem) {
+    this.classList.add('drag-over');
+  }
+}
+
+function handleDragLeave(e) {
+  this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  this.classList.remove('drag-over');
+
+  if (this !== draggedItem) {
+    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    const toIndex = parseInt(this.dataset.index);
+
+    // Reorder array
+    const [removed] = customDocuments.splice(fromIndex, 1);
+    customDocuments.splice(toIndex, 0, removed);
+
+    renderCustomList();
+  }
+}
+
+function handleDragEnd(e) {
+  this.classList.remove('dragging');
+  document.querySelectorAll('.custom-list-item').forEach(item => {
+    item.classList.remove('drag-over');
+  });
+  draggedItem = null;
+}
+
+function updateCustomStartButton() {
+  const btn = document.getElementById('customStartBtn');
+  btn.disabled = customDocuments.length === 0;
+}
+
+let parsedItems = [];
+
+function togglePasteSection() {
+  const section = document.getElementById('pasteSection');
+  section.classList.toggle('active');
+  if (section.classList.contains('active')) {
+    document.getElementById('pasteTextarea').focus();
+  }
+}
+
+function parsePastedList() {
+  const textarea = document.getElementById('pasteTextarea');
+  const text = textarea.value.trim();
+
+  if (!text) return;
+
+  // Split by newlines and clean up
+  const lines = text.split(/\n/).map(line => line.trim());
+
+  // Filter and clean lines
+  parsedItems = lines
+    .filter(line => {
+      // Skip empty lines
+      if (!line) return false;
+
+      // Skip very short lines (less than 3 chars)
+      if (line.length < 3) return false;
+
+      // Skip lines that look like headers/links (contain "Checklist for" or similar)
+      if (/checklist for/i.test(line)) return false;
+
+      // Skip lines that are just URLs
+      if (/^https?:\/\//i.test(line)) return false;
+
+      // Skip lines that start with "Please" and are instructional
+      if (/^please (complete|fill|note|ensure|make)/i.test(line)) return false;
+
+      // Skip if line contains "using the link" or similar
+      if (/using the link|click here|visit/i.test(line)) return false;
+
+      return true;
+    })
+    .map(line => {
+      // Clean up the line
+      let cleaned = line;
+
+      // Remove leading numbers, bullets, dashes
+      cleaned = cleaned.replace(/^[\d]+[\.\)\-\s]+/, '');
+      cleaned = cleaned.replace(/^[\•\-\*\–\—\s]+/, '');
+      cleaned = cleaned.replace(/^[a-z][\.\)]\s+/i, '');
+
+      // Trim again after cleaning
+      cleaned = cleaned.trim();
+
+      // Capitalize first letter
+      if (cleaned.length > 0) {
+        cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+      }
+
+      return cleaned;
+    })
+    .filter(line => line.length >= 3); // Filter again after cleaning
+
+  // Remove duplicates
+  parsedItems = [...new Set(parsedItems)];
+
+  // Show preview
+  showPastePreview();
+}
+
+function showPastePreview() {
+  const preview = document.getElementById('pastePreview');
+  const list = document.getElementById('pastePreviewList');
+  const count = document.getElementById('pastePreviewCount');
+
+  if (parsedItems.length === 0) {
+    preview.style.display = 'none';
+    return;
+  }
+
+  preview.style.display = 'block';
+  count.textContent = `${parsedItems.length} item${parsedItems.length !== 1 ? 's' : ''}`;
+
+  list.innerHTML = parsedItems.map((item, index) => `
+    <div class="paste-preview-item">
+      <span class="preview-num">${index + 1}</span>
+      <span class="preview-text">${item}</span>
+    </div>
+  `).join('');
+}
+
+function addAllParsedItems() {
+  if (parsedItems.length === 0) return;
+
+  // Add each parsed item to the custom documents list
+  parsedItems.forEach(item => {
+    customDocuments.push({
+      id: 'custom_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      name: item,
+      hint: ''
+    });
+  });
+
+  // Clear parsed items and textarea
+  parsedItems = [];
+  document.getElementById('pasteTextarea').value = '';
+  document.getElementById('pastePreview').style.display = 'none';
+
+  // Close paste section
+  document.getElementById('pasteSection').classList.remove('active');
+
+  // Re-render the custom list
+  renderCustomList();
+  updateCustomStartButton();
+}
+
+function startWithCustomList() {
+  if (customDocuments.length === 0) return;
+
+  // Create custom country config
+  COUNTRY_DOCS.custom = {
+    name: 'Custom List',
+    portal: 'Custom document checklist',
+    required: customDocuments.map(d => ({
+      id: d.id,
+      name: d.name,
+      hint: d.hint
+    })),
+    optional: []
+  };
+
+  // Hide start screen, show main app
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+
+  // Add custom option to country selector if not already present
+  const select = document.getElementById('countrySelect');
+  if (!select.querySelector('option[value="custom"]')) {
+    const option = document.createElement('option');
+    option.value = 'custom';
+    option.textContent = '📋 Custom List';
+    select.appendChild(option);
+  }
+
+  // Set the country and initialize
+  select.value = 'custom';
+  changeCountry('custom');
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   COUNTRY-SPECIFIC DOCUMENT CHECKLISTS
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const COUNTRY_DOCS = {
+  france: {
+    name: 'France',
+    portal: 'France-Visas portal (france-visas.gouv.fr)',
+    required: [
+      { id: 'passport', name: 'Passport (bio page + all stamped pages)', hint: 'Colour scan, valid 3+ months beyond return date, issued within last 10 years, 2+ blank pages' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports — required regardless of whether they contain prior stamps' },
+      { id: 'photos', name: 'Passport-size Photographs (×2)', hint: '35mm × 45mm, white background, matte finish, taken within 6 months' },
+      { id: 'application_form', name: 'Signed Application Form', hint: 'Completed via France-Visas portal (france-visas.gouv.fr); appointment wait can be 4–8 weeks — book early' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose of visit, day-by-day itinerary, return intent to India, signed' },
+      { id: 'flight_itinerary', name: 'Flight Itinerary / Round-trip Booking', hint: 'Confirmed round-trip — dummy/hold ticket acceptable; do not purchase until visa approved' },
+      { id: 'travel_insurance', name: 'Travel Medical Insurance', hint: 'Min €30,000 coverage, valid across ALL Schengen states for full trip duration' },
+      { id: 'accommodation', name: 'Hotel Bookings / Accommodation Proof', hint: 'Confirmed reservations covering every night of stay; must match itinerary dates exactly' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Stamped by bank; guideline ≈ €50–100/day of stay; shows regular activity, not a sudden lump sum' },
+      { id: 'employment_proof', name: 'Employment Letter / Leave Approval', hint: 'On company letterhead — confirms role, salary, approved leave dates, and intent to return' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips as corroborating income evidence' },
+      { id: 'itr', name: 'Income Tax Returns (ITR)', hint: 'Last 2–3 years, acknowledgement copies; demonstrates stable income history' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, vehicle RC, family certs, or business registration — proves you will return' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan — strengthens application even if not mandatory' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer; corroborates ITR; especially useful for France' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed: certificate of incorporation, trade license, or MSME registration' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years; CA-certified balance sheet' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC from institution + proof of enrollment' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired: pension slip or bank credit; sponsor letter if funded by family' },
+      { id: 'noc_employer', name: 'NOC from Employer', hint: 'Some consulates request a separate NOC in addition to the leave letter' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'If applying as a couple or spouse is co-traveller' },
+      { id: 'invitation_letter', name: 'Invitation / Host Letter', hint: 'If staying with friends or family — host provides ID, residence proof, relationship confirmation' },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas significantly improve approval odds — include copies' },
+      { id: 'property_docs', name: 'Property Ownership Documents', hint: 'Sale deed, property tax receipt — strong additional proof of ties to India' },
+      { id: 'travel_itinerary_detail', name: 'Train / Bus / Ferry Bookings', hint: 'Inter-city transport within Schengen' },
+    ]
+  },
+  germany: {
+    name: 'Germany',
+    portal: 'VFS Germany (vfsglobal.com/Germany/India)',
+    required: [
+      { id: 'passport', name: 'Passport (bio page + all stamped pages)', hint: 'Valid 3+ months beyond return date, issued within 10 years, 2+ blank pages' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports — required regardless of stamps' },
+      { id: 'photos', name: 'Biometric Photographs (×2)', hint: '35mm × 45mm, white background, taken within 6 months' },
+      { id: 'application_form', name: 'Signed Application Form', hint: 'Downloaded from German mission or VFS website' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose of visit, detailed day-by-day itinerary, return intent to India' },
+      { id: 'flight_itinerary', name: 'Flight Reservation', hint: 'Round-trip booking — do not purchase until visa approved' },
+      { id: 'travel_insurance', name: 'Travel Health Insurance', hint: 'Min €30,000, covers entire Schengen area for full trip duration' },
+      { id: 'accommodation', name: 'Proof of Accommodation', hint: 'Hotel bookings every night; or invitation letter with host ID + Anmeldebestätigung (registration cert)' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Original stamped by bank; guideline €50–100/day; regular activity required — not a lump sum' },
+      { id: 'employment_proof', name: 'Employment Certificate / Leave Letter', hint: 'On company letterhead with salary, role, leave approval dates, return-to-work confirmation' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips showing regular income' },
+      { id: 'itr', name: 'Income Tax Returns (last 2–3 years)', hint: 'ITR acknowledgement and computation; Germany scrutinises financial proof heavily' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, vehicle RC, family certs — accommodation and ties are especially scrutinised' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Detailed Travel Itinerary', hint: 'Day-wise plan with cities and activities' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate; especially useful for Germany' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed: incorporation cert, trade license, or MSME' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC from institution + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants: pension slip or bank credits' },
+      { id: 'sponsorship_letter', name: 'Sponsorship / Sponsor Letter', hint: 'If trip is funded by someone else — include their ID and financial proof' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'If traveling with spouse' },
+      { id: 'invitation_letter', name: 'Invitation Letter from Germany', hint: "Host's ID + Anmeldebestätigung (German registration certificate)" },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas improve approval odds' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Strong proof of ties to India' },
+    ]
+  },
+  italy: {
+    name: 'Italy',
+    portal: 'VFS Italy (vfsglobal.com/Italy/India)',
+    required: [
+      { id: 'passport', name: 'Passport (original + copy)', hint: 'Valid 3+ months beyond return, issued within last 10 years, 2+ blank pages' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports — required regardless of stamps' },
+      { id: 'photos', name: 'Passport Photos (×2)', hint: '35mm × 45mm, white background, matte finish, recent' },
+      { id: 'application_form', name: 'Signed Visa Application Form', hint: 'Completed and signed as per VFS Italy instructions' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose, day-by-day plan, return intent; Italy scrutinises cover letters closely' },
+      { id: 'flight_itinerary', name: 'Flight Itinerary', hint: 'Round-trip reservation; dummy ticket acceptable' },
+      { id: 'travel_insurance', name: 'Travel Insurance', hint: 'Min €30,000, valid for all Schengen states' },
+      { id: 'accommodation', name: 'Hotel Reservations', hint: 'Entire duration — hotel bookings must match each night of stay precisely' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Bank-stamped; guideline €50–100/day; shows regular income flow' },
+      { id: 'employment_proof', name: 'Employment Letter / Leave Sanction', hint: 'On letterhead with role, salary, approved leave dates' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips' },
+      { id: 'itr', name: 'Income Tax Returns (last 3 years)', hint: 'Italy typically requests 3 years ITR' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, family certs, business registration — return intent proof' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed applicants' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants' },
+      { id: 'noc_employer', name: 'NOC from Employer', hint: 'No objection certificate if consulate requests' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'For couples' },
+      { id: 'invitation_letter', name: 'Invitation Letter', hint: 'If visiting in Italy — must be apostilled; host provides ID + residence proof' },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas help significantly' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Proof of ties to India' },
+      { id: 'transport_bookings', name: 'Internal Transport Bookings', hint: 'Train tickets within Italy' },
+    ]
+  },
+  spain: {
+    name: 'Spain',
+    portal: 'BLS International Spain (blsinternational.com)',
+    required: [
+      { id: 'passport', name: 'Passport (original)', hint: 'Valid 3+ months beyond stay, 2+ blank pages' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports' },
+      { id: 'photos', name: 'Recent Photographs (×2)', hint: '35mm × 45mm, white background' },
+      { id: 'application_form', name: 'Application Form', hint: 'Completed via BLS online system' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Trip purpose, itinerary overview, return intent' },
+      { id: 'flight_itinerary', name: 'Flight Booking', hint: 'Confirmed round-trip reservation' },
+      { id: 'travel_insurance', name: 'Travel Insurance', hint: '€30,000 coverage, Schengen-wide' },
+      { id: 'accommodation', name: 'Accommodation Proof', hint: 'Hotel bookings for entire Spain stay' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Original, bank-stamped; Spain is stricter on balance verification than most Schengen countries' },
+      { id: 'employment_proof', name: 'Employment Letter', hint: 'With salary, role, leave approval' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Proof of regular income' },
+      { id: 'itr', name: 'Income Tax Returns (last 2–3 years)', hint: 'ITR acknowledgement copies' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, family certs, business registration' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Detailed Itinerary', hint: 'Day-wise travel plan' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed applicants' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants' },
+      { id: 'sponsorship_docs', name: 'Sponsorship Documents', hint: 'If sponsored — include sponsor NIE + income proof; Spain scrutinises this closely' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'For married couples' },
+      { id: 'invitation_letter', name: 'Invitation Letter', hint: 'From host in Spain — host must provide NIE + income proof' },
+      { id: 'prev_visa_copy', name: 'Previous Visas', hint: 'Schengen or US/UK visa history helps' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Proof of ties to India' },
+    ]
+  },
+  netherlands: {
+    name: 'Netherlands',
+    portal: 'VFS Netherlands (vfsglobal.com/Netherlands/India)',
+    required: [
+      { id: 'passport', name: 'Passport', hint: 'Valid 3+ months after departure, 2+ blank pages' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports' },
+      { id: 'photos', name: 'Passport Photos (×2)', hint: '35mm × 45mm, white background, recent' },
+      { id: 'application_form', name: 'Signed Application Form', hint: 'VFS Netherlands form, completed and signed' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose of visit, itinerary, return intent' },
+      { id: 'flight_itinerary', name: 'Flight Itinerary', hint: 'Round-trip booking' },
+      { id: 'travel_insurance', name: 'Travel Insurance', hint: '€30,000 minimum coverage, all Schengen states' },
+      { id: 'accommodation', name: 'Accommodation Proof', hint: 'Hotel bookings or sponsor accommodation with host ID' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Guideline ≈ €34/day minimum (NL-specific); bank stamped' },
+      { id: 'employment_proof', name: 'Employment Letter', hint: 'On letterhead with leave approval and return-to-work confirmation' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips' },
+      { id: 'itr', name: 'Income Tax Returns (last 2–3 years)', hint: 'ITR acknowledgement copies' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, family certs, vehicle RC' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed applicants' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants' },
+      { id: 'sponsor_letter', name: 'Sponsor Letter', hint: 'If visit is funded by someone — include their ID, income proof, gemeentelijke registratie' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'If applying with spouse' },
+      { id: 'invitation_letter', name: 'Invitation from Netherlands', hint: 'With host ID copy + Dutch municipal registration proof' },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas help' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Proof of ties to India' },
+      { id: 'transport_bookings', name: 'EU Transport Bookings', hint: 'Train/bus tickets within Schengen' },
+    ]
+  },
+  greece: {
+    name: 'Greece',
+    portal: 'VFS Greece (vfsglobal.com/Greece/India)',
+    required: [
+      { id: 'passport', name: 'Passport (bio page + all stamped pages)', hint: 'Valid 3+ months beyond return, 2+ blank pages' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports' },
+      { id: 'photos', name: 'Passport Photos (×2)', hint: '35mm × 45mm, white background, recent' },
+      { id: 'application_form', name: 'Signed Application Form', hint: 'Completed via VFS Greece; one of the faster-processing Schengen countries' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose of visit, itinerary, return intent' },
+      { id: 'flight_itinerary', name: 'Flight Itinerary', hint: 'Round-trip reservation; dummy ticket acceptable' },
+      { id: 'travel_insurance', name: 'Travel Medical Insurance', hint: 'Min €30,000, valid across all Schengen states' },
+      { id: 'accommodation', name: 'Hotel Bookings / Accommodation Proof', hint: 'Confirmed reservations for entire stay' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Bank-stamped; ≈ €50/day guideline; peak summer processing can take 3–4 weeks — apply early' },
+      { id: 'employment_proof', name: 'Employment Letter / Leave Approval', hint: 'On letterhead with role, salary, leave dates' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips' },
+      { id: 'itr', name: 'Income Tax Returns (last 2–3 years)', hint: 'ITR acknowledgement copies' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, family certs, vehicle RC' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan; helpful during busy summer season' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed applicants' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'For couples' },
+      { id: 'invitation_letter', name: 'Invitation Letter', hint: 'If visiting someone in Greece — with host ID and residence proof' },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas help' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Proof of ties to India' },
+    ]
+  },
+  switzerland: {
+    name: 'Switzerland',
+    portal: 'VFS Switzerland (vfsglobal.com/Switzerland/India)',
+    required: [
+      { id: 'passport', name: 'Passport (bio page + all stamped pages)', hint: 'Valid 3+ months beyond return, 2+ blank pages; note: Switzerland is Schengen but not EU' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports' },
+      { id: 'photos', name: 'Passport Photos (×2)', hint: '35mm × 45mm, white background, recent' },
+      { id: 'application_form', name: 'Signed Application Form', hint: 'Completed via VFS Switzerland' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose, itinerary, return intent' },
+      { id: 'flight_itinerary', name: 'Flight Itinerary', hint: 'Round-trip reservation' },
+      { id: 'travel_insurance', name: 'Travel Medical Insurance', hint: 'Min €30,000 / CHF 35,000 coverage, valid across all Schengen states' },
+      { id: 'accommodation', name: 'Hotel Bookings / Accommodation Proof', hint: 'Confirmed reservations covering entire stay' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Bank-stamped; Switzerland guideline ≈ CHF 100/day — slightly higher than most Schengen' },
+      { id: 'employment_proof', name: 'Employment Letter / Leave Approval', hint: 'On letterhead with role, salary, leave approval' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips' },
+      { id: 'itr', name: 'Income Tax Returns (last 2–3 years)', hint: 'ITR acknowledgement copies' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, family certs, vehicle RC' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed applicants' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'For couples' },
+      { id: 'invitation_letter', name: 'Invitation Letter', hint: 'If visiting someone in Switzerland — with host ID and residence proof' },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas help significantly' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Proof of ties to India' },
+    ]
+  },
+  czech: {
+    name: 'Czech Republic',
+    portal: 'Czech Embassy New Delhi (mzv.cz/newdelhi)',
+    required: [
+      { id: 'passport', name: 'Passport (bio page + all stamped pages)', hint: 'Valid 3+ months beyond return, 2+ blank pages' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports' },
+      { id: 'photos', name: 'Passport Photos (×2)', hint: '35mm × 45mm, white background, recent' },
+      { id: 'application_form', name: 'Signed Application Form', hint: 'Apply directly at Czech Embassy — limited VFS presence in India; historically one of the more approachable Schengen countries for Indians' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose, itinerary, return intent' },
+      { id: 'flight_itinerary', name: 'Flight Itinerary', hint: 'Round-trip reservation' },
+      { id: 'travel_insurance', name: 'Travel Medical Insurance', hint: 'Min €30,000 coverage, valid across all Schengen states' },
+      { id: 'accommodation', name: 'Hotel Bookings / Accommodation Proof', hint: 'Confirmed reservations for entire stay' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Bank-stamped; strong approval rate with clean financials' },
+      { id: 'employment_proof', name: 'Employment Letter / Leave Approval', hint: 'On letterhead with role, salary, leave dates' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips' },
+      { id: 'itr', name: 'Income Tax Returns (last 2–3 years)', hint: 'ITR acknowledgement copies' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, family certs, vehicle RC' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed applicants' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'For couples' },
+      { id: 'invitation_letter', name: 'Invitation Letter', hint: 'If visiting someone in Czech Republic — with host ID and residence proof' },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas help' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Proof of ties to India' },
+    ]
+  },
+  portugal: {
+    name: 'Portugal',
+    portal: 'VFS Portugal (vfsglobal.com/Portugal/India)',
+    required: [
+      { id: 'passport', name: 'Passport (bio page + all stamped pages)', hint: 'Valid 3+ months beyond return, 2+ blank pages' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports' },
+      { id: 'photos', name: 'Passport Photos (×2)', hint: '35mm × 45mm, white background, recent' },
+      { id: 'application_form', name: 'Signed Application Form', hint: 'Completed via VFS Portugal' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose, itinerary, return intent' },
+      { id: 'flight_itinerary', name: 'Flight Itinerary', hint: 'Round-trip reservation; dummy ticket acceptable' },
+      { id: 'travel_insurance', name: 'Travel Medical Insurance', hint: 'Min €30,000, valid across Schengen' },
+      { id: 'accommodation', name: 'Hotel Bookings / Accommodation Proof', hint: 'Confirmed reservations covering entire stay' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Bank-stamped; ≈ €75/day guideline' },
+      { id: 'employment_proof', name: 'Employment Letter / Leave Approval', hint: 'On letterhead with role, salary, leave dates' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips' },
+      { id: 'itr', name: 'Income Tax Returns (last 2–3 years)', hint: 'ITR acknowledgement copies' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, family certs, vehicle RC' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed applicants' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'For couples' },
+      { id: 'invitation_letter', name: 'Invitation Letter', hint: 'If visiting someone in Portugal — with host ID and residence proof' },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas help' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Proof of ties to India' },
+    ]
+  },
+  austria: {
+    name: 'Austria',
+    portal: 'Austrian Embassy or VFS Austria',
+    required: [
+      { id: 'passport', name: 'Passport (bio page + all stamped pages)', hint: 'Valid 3+ months beyond return, 2+ blank pages' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports' },
+      { id: 'photos', name: 'Passport Photos (×2)', hint: '35mm × 45mm, white background, recent' },
+      { id: 'application_form', name: 'Signed Application Form', hint: 'Completed via Austrian Embassy / VFS' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose, itinerary, return intent' },
+      { id: 'flight_itinerary', name: 'Flight Itinerary', hint: 'Round-trip reservation' },
+      { id: 'travel_insurance', name: 'Travel Medical Insurance', hint: 'Min €30,000, valid across all Schengen states' },
+      { id: 'accommodation', name: 'Hotel Bookings / Accommodation Proof', hint: 'Confirmed reservations for entire stay' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Bank-stamped; ≈ €50/day guideline' },
+      { id: 'employment_proof', name: 'Employment Letter / Leave Approval', hint: 'On letterhead with role, salary, approved leave dates' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips' },
+      { id: 'itr', name: 'Income Tax Returns (last 2–3 years)', hint: 'ITR acknowledgement copies' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, family certs, vehicle RC' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed applicants' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'For couples' },
+      { id: 'invitation_letter', name: 'Invitation Letter', hint: 'If visiting someone in Austria — with host ID and residence proof' },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas help' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Proof of ties to India' },
+    ]
+  },
+  generic: {
+    name: 'Other Schengen',
+    portal: 'respective consulate / VFS',
+    required: [
+      { id: 'passport', name: 'Valid Passport', hint: 'Valid 3+ months beyond return date, 2+ blank pages, issued within 10 years' },
+      { id: 'old_passport', name: 'Old Passport(s)', hint: 'All previous passports' },
+      { id: 'photos', name: 'Passport-size Photographs (×2)', hint: '35mm × 45mm, white background, recent' },
+      { id: 'application_form', name: 'Signed Application Form', hint: 'As per consulate/VFS requirements' },
+      { id: 'cover_letter', name: 'Cover Letter', hint: 'Purpose of visit, day-by-day itinerary, return intent' },
+      { id: 'flight_itinerary', name: 'Flight Itinerary', hint: 'Round-trip reservation; dummy ticket acceptable at most consulates' },
+      { id: 'travel_insurance', name: 'Travel Medical Insurance', hint: 'Min €30,000 coverage, valid for all Schengen states' },
+      { id: 'accommodation', name: 'Accommodation Proof', hint: 'Hotel bookings for entire stay' },
+      { id: 'bank_statements', name: 'Bank Statements (last 6 months)', hint: 'Bank-stamped; ≈ €50–100/day guideline' },
+      { id: 'employment_proof', name: 'Employment Letter / Leave Approval', hint: 'From employer with role, salary, leave dates' },
+      { id: 'salary_slips', name: 'Salary Slips (last 3–6 months)', hint: 'Recent payslips' },
+      { id: 'itr', name: 'Income Tax Returns (last 2–3 years)', hint: 'ITR acknowledgement copies' },
+      { id: 'ties_to_india', name: 'Proof of Ties to India', hint: 'Property docs, family certs, vehicle RC — proves return intent' },
+    ],
+    optional: [
+      { id: 'day_itinerary', name: 'Day-by-Day Itinerary', hint: 'Detailed travel plan' },
+      { id: 'form_16', name: 'Form 16 (Salaried)', hint: 'TDS certificate from employer' },
+      { id: 'business_registration', name: 'Business Registration Certificate', hint: 'Self-employed applicants' },
+      { id: 'gst_returns', name: 'GST Returns / CA-Certified Financials', hint: 'Self-employed: last 2–3 years' },
+      { id: 'student_noc', name: 'Student NOC / Bonafide Certificate', hint: 'Students: NOC + enrollment proof' },
+      { id: 'pension_docs', name: 'Pension Documents', hint: 'Retired applicants' },
+      { id: 'noc_employer', name: 'NOC from Employer', hint: 'If consulate requires separately' },
+      { id: 'marriage_cert', name: 'Marriage Certificate', hint: 'For couples' },
+      { id: 'invitation_letter', name: 'Invitation Letter', hint: 'Host provides ID, residence proof, relationship confirmation' },
+      { id: 'prev_visa_copy', name: 'Previous Visa Copies', hint: 'Prior US, UK, or Schengen visas help significantly' },
+      { id: 'property_docs', name: 'Property Documents', hint: 'Proof of ties to India' },
+      { id: 'transport_bookings', name: 'Internal Transport Bookings', hint: 'Trains, buses within Schengen' },
+    ]
+  }
+};
+
+const COUNTRY_THEMES = {
+  france:      { flag: ['#002395','#FFFFFF','#ED2939'], accent: '#002395', accentLight: '#E8ECF8', accentHover: '#001A70' },
+  germany:     { flag: ['#1A1A1A','#CC0000','#FFCE00'], accent: '#CC0000', accentLight: '#FCE8E8', accentHover: '#A80000' },
+  italy:       { flag: ['#009246','#FFFFFF','#CE2B37'], accent: '#006F38', accentLight: '#E6F4ED', accentHover: '#005A2D' },
+  spain:       { flag: ['#9B1219','#F1BF00','#9B1219'], accent: '#9B1219', accentLight: '#FDF4E7', accentHover: '#7A0D13' },
+  netherlands: { flag: ['#AE1C28','#FFFFFF','#21468B'], accent: '#21468B', accentLight: '#E8EEF7', accentHover: '#193775' },
+  greece:      { flag: ['#0D5EAF','#FFFFFF','#0D5EAF'], accent: '#0D5EAF', accentLight: '#E5EEF8', accentHover: '#0A4C8E' },
+  switzerland: { flag: ['#C8102E','#FFFFFF','#C8102E'], accent: '#C8102E', accentLight: '#FCE8EB', accentHover: '#A00020' },
+  czech:       { flag: ['#D7141A','#FFFFFF','#11457E'], accent: '#11457E', accentLight: '#E5EEF8', accentHover: '#0D3863' },
+  portugal:    { flag: ['#006600','#FFFFFF','#FF0000'], accent: '#006600', accentLight: '#E6F2E6', accentHover: '#005200' },
+  austria:     { flag: ['#B22222','#FFFFFF','#B22222'], accent: '#B22222', accentLight: '#FCE8E8', accentHover: '#8B1A1A' },
+  generic:     { flag: ['#003399','#FFFFFF','#FFCC00'], accent: '#1B4B6B', accentLight: '#E8F0F6', accentHover: '#153D58' },
+};
+
+function applyTheme(key) {
+  const theme = COUNTRY_THEMES[key] || COUNTRY_THEMES.generic;
+  const root = document.documentElement;
+  root.style.setProperty('--accent', theme.accent);
+  root.style.setProperty('--accent-light', theme.accentLight);
+  root.style.setProperty('--accent-hover', theme.accentHover);
+  const header = document.querySelector('.header');
+  if (header) header.style.backgroundColor = theme.accent;
+  const stripes = document.querySelectorAll('.header-flag span');
+  theme.flag.forEach((color, i) => { if (stripes[i]) stripes[i].style.background = color; });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STATE MANAGEMENT
+   ══════════════════════════════════════════════════════════════════════════ */
+
+let currentCountry = 'france';
+let people = [];
+let activePersonId = null;
+
+function getCountryDocs() {
+  return COUNTRY_DOCS[currentCountry];
+}
+
+function createPersonData(name) {
+  const id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const countryDocs = getCountryDocs();
+  const documents = {};
+
+  countryDocs.required.forEach(d => {
+    documents[d.id] = { ...d, file: null, optional: false, printed: false };
+  });
+  countryDocs.optional.forEach(d => {
+    documents[d.id] = { ...d, file: null, optional: true, printed: false };
+  });
+
+  return {
+    id,
+    name,
+    documents,
+    docOrder: {
+      required: countryDocs.required.map(d => d.id),
+      optional: countryDocs.optional.map(d => d.id),
+    }
+  };
+}
+
+function ap() { return people.find(p => p.id === activePersonId); }
+
+function changeCountry(country) {
+  if (people.length > 0) {
+    const hasFiles = people.some(p => {
+      const allIds = [...p.docOrder.required, ...p.docOrder.optional];
+      return allIds.some(id => p.documents[id]?.file);
+    });
+
+    if (hasFiles) {
+      if (!confirm('Changing country will reset all checklists. Your uploaded files will be cleared. Continue?')) {
+        document.getElementById('countrySelect').value = currentCountry;
+        return;
+      }
+    }
+  }
+
+  currentCountry = country;
+  applyTheme(country);
+  trackEvent('country_changed', { country });
+
+  // Reset with new country's checklist
+  const firstName = people.length > 0 ? people[0].name : 'Person 1';
+  people = [];
+  const first = createPersonData(firstName);
+  people.push(first);
+  activePersonId = first.id;
+
+  renderTabs();
+  renderAll();
+  showToast(`Switched to ${getCountryDocs().name} checklist`);
+}
+
+function init() {
+  // Load saved country preference
+  const savedCountry = localStorage.getItem('visa_collator_country');
+  if (savedCountry && COUNTRY_DOCS[savedCountry]) {
+    currentCountry = savedCountry;
+    document.getElementById('countrySelect').value = currentCountry;
+  }
+  applyTheme(currentCountry);
+
+  const first = createPersonData('Person 1');
+  people.push(first);
+  activePersonId = first.id;
+  renderTabs();
+  renderAll();
+
+  // Track page view
+  trackEvent('page_view', { country: currentCountry });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ANALYTICS (Privacy-Respecting)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+function trackEvent(eventName, properties = {}) {
+  // Simple, privacy-respecting analytics
+  // No cookies, no personal data, just aggregate counts
+  const data = {
+    event: eventName,
+    properties: {
+      ...properties,
+      timestamp: Date.now(),
+      referrer: document.referrer ? new URL(document.referrer).hostname : 'direct',
+    }
+  };
+
+  // Store locally for now (you can connect to a privacy-respecting service like Plausible)
+  const events = JSON.parse(localStorage.getItem('visa_collator_events') || '[]');
+  events.push(data);
+  // Keep only last 100 events locally
+  if (events.length > 100) events.shift();
+  localStorage.setItem('visa_collator_events', JSON.stringify(events));
+
+  // Save country preference
+  if (eventName === 'country_changed') {
+    localStorage.setItem('visa_collator_country', properties.country);
+  }
+
+  // Console log in dev (remove in production)
+  console.log('📊 Event:', eventName, properties);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FEEDBACK SYSTEM
+   ══════════════════════════════════════════════════════════════════════════ */
+
+function openFeedbackModal() {
+  document.getElementById('feedbackType').value = 'suggestion';
+  document.getElementById('feedbackText').value = '';
+  document.getElementById('feedbackEmail').value = '';
+  document.getElementById('feedbackModal').classList.add('open');
+  setTimeout(() => document.getElementById('feedbackText').focus(), 100);
+  trackEvent('feedback_modal_opened');
+}
+
+function closeFeedbackModal() {
+  document.getElementById('feedbackModal').classList.remove('open');
+}
+
+function submitFeedback() {
+  const type = document.getElementById('feedbackType').value;
+  const text = document.getElementById('feedbackText').value.trim();
+  const email = document.getElementById('feedbackEmail').value.trim();
+
+  if (!text) {
+    showToast('Please enter your feedback');
+    return;
+  }
+
+  const feedback = {
+    type,
+    text,
+    email: email || null,
+    country: currentCountry,
+    timestamp: new Date().toISOString(),
+    userAgent: navigator.userAgent,
+  };
+
+  // Store feedback locally (in production, send to your backend)
+  const feedbacks = JSON.parse(localStorage.getItem('visa_collator_feedback') || '[]');
+  feedbacks.push(feedback);
+  localStorage.setItem('visa_collator_feedback', JSON.stringify(feedbacks));
+
+  trackEvent('feedback_submitted', { type });
+
+  closeFeedbackModal();
+  showToast('Thank you for your feedback! 💙');
+}
+
+document.getElementById('feedbackText')?.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeFeedbackModal();
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TABS
+   ══════════════════════════════════════════════════════════════════════════ */
+
+function renderTabs() {
+  const bar = document.getElementById('tabsBar');
+  bar.innerHTML = '';
+
+  people.forEach(person => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (person.id === activePersonId ? ' active' : '');
+
+    const rr = person.docOrder.required.filter(id => person.documents[id]?.file || person.documents[id]?.printed).length;
+    const tot = person.docOrder.required.length;
+    const bc = rr === tot ? 'tab-badge complete' : 'tab-badge';
+
+    tab.innerHTML = `
+      <span>${esc(person.name)}</span>
+      <span class="${bc}">${rr}/${tot}</span>
+      <button class="tab-rename" onclick="event.stopPropagation();openRenameModal('${person.id}')" title="Rename traveller"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      ${people.length > 1 ? `<button class="tab-close" onclick="event.stopPropagation();removePerson('${person.id}')" title="Remove traveller">✕</button>` : ''}
+    `;
+    tab.addEventListener('click', () => { activePersonId = person.id; renderTabs(); renderAll(); });
+    bar.appendChild(tab);
+  });
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'tab-add';
+  addBtn.textContent = '+';
+  addBtn.title = 'Add traveller';
+  addBtn.addEventListener('click', () => {
+    document.getElementById('newPersonName').value = '';
+    document.getElementById('addPersonModal').classList.add('open');
+    setTimeout(() => document.getElementById('newPersonName').focus(), 100);
+  });
+  bar.appendChild(addBtn);
+}
+
+function closeAddModal() { document.getElementById('addPersonModal').classList.remove('open'); }
+
+function confirmAddPerson() {
+  const name = document.getElementById('newPersonName').value.trim() || `Person ${people.length + 1}`;
+  const p = createPersonData(name);
+  people.push(p);
+  activePersonId = p.id;
+  closeAddModal();
+  renderTabs();
+  renderAll();
+  showToast(`Added "${name}"`);
+  trackEvent('traveller_added', { count: people.length });
+}
+
+document.getElementById('newPersonName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmAddPerson();
+  if (e.key === 'Escape') closeAddModal();
+});
+
+let renamingId = null;
+function openRenameModal(pid) {
+  renamingId = pid;
+  const p = people.find(x => x.id === pid);
+  document.getElementById('renameInput').value = p.name;
+  document.getElementById('renameModal').classList.add('open');
+  setTimeout(() => { const i = document.getElementById('renameInput'); i.focus(); i.select(); }, 100);
+}
+function closeRenameModal() { document.getElementById('renameModal').classList.remove('open'); renamingId = null; }
+function confirmRename() {
+  const name = document.getElementById('renameInput').value.trim();
+  if (!name || !renamingId) return;
+  const p = people.find(x => x.id === renamingId);
+  if (p) p.name = name;
+  closeRenameModal();
+  renderTabs();
+  renderAll();
+  showToast(`Renamed to "${name}"`);
+}
+document.getElementById('renameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmRename();
+  if (e.key === 'Escape') closeRenameModal();
+});
+
+function removePerson(pid) {
+  if (people.length <= 1) return;
+  const p = people.find(x => x.id === pid);
+  if (!confirm(`Remove "${p.name}" and all their documents?`)) return;
+  people = people.filter(x => x.id !== pid);
+  if (activePersonId === pid) activePersonId = people[0].id;
+  renderTabs(); renderAll();
+  showToast(`Removed "${p.name}"`);
+  trackEvent('traveller_removed', { count: people.length });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DOCUMENT RENDERING
+   ══════════════════════════════════════════════════════════════════════════ */
+
+function renderAll() {
+  const p = ap(); if (!p) return;
+  renderList('requiredList', p.docOrder.required, p);
+  renderList('optionalList', p.docOrder.optional, p);
+  updateProgress();
+}
+
+function renderList(cid, ids, person) {
+  const c = document.getElementById(cid);
+  c.innerHTML = '';
+
+  ids.forEach(id => {
+    const doc = person.documents[id];
+    if (!doc) return;
+
+    const card = document.createElement('div');
+    const cls = ['doc-card'];
+    if (doc.file) cls.push('has-file');
+    if (doc.printed) cls.push('is-printed');
+    card.className = cls.join(' ');
+    card.draggable = true;
+    card.dataset.id = id;
+
+    card.addEventListener('dragstart', handleDragStart);
+    card.addEventListener('dragend', handleDragEnd);
+    card.addEventListener('dragover', handleDragOver);
+    card.addEventListener('dragleave', handleDragLeave);
+    card.addEventListener('drop', handleDrop);
+
+    const optB = doc.optional ? '<span class="optional-badge">Optional</span>' : '';
+    const prB = doc.printed ? '<span class="printed-badge"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Printed</span>' : '';
+
+    let fd;
+    if (doc.printed && !doc.file) fd = `<div class="doc-detail" style="color:#7C3AED;font-weight:500;">Already printed — skipped in export</div>`;
+    else if (doc.file) fd = `<div class="doc-detail file-name">${esc(doc.file.name)} (${fmtSz(doc.file.size)})</div>`;
+    else fd = `<div class="doc-detail">${esc(doc.hint || 'Upload PDF or image')}</div>`;
+
+    const pbc = doc.printed ? 'btn-printed active' : 'btn-printed';
+    const pbl = doc.printed ? '✓ Printed' : 'Printed';
+    const countryDocs = getCountryDocs();
+    const isCust = doc.optional && !countryDocs.optional.find(d => d.id === id);
+
+    card.innerHTML = `
+      <div class="drag-handle"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="3" r="1.5"/><circle cx="11" cy="3" r="1.5"/><circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/><circle cx="5" cy="13" r="1.5"/><circle cx="11" cy="13" r="1.5"/></svg></div>
+      <div class="doc-status"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="doc-info">
+        <div class="doc-name">${esc(doc.name)}${optB}${prB}</div>
+        ${fd}
+      </div>
+      <div class="doc-actions">
+        <button class="${pbc}" onclick="togglePrinted('${id}')" title="Already have a printed copy"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>${pbl}</button>
+        ${!doc.printed ? `<button class="btn-upload" onclick="triggerUpload('${id}')">${doc.file ? 'Replace' : 'Upload'}</button>` : ''}
+        ${doc.file ? `<button class="btn-remove" onclick="removeFile('${id}')">✕</button>` : ''}
+        ${isCust ? `<button class="btn-remove" onclick="removeDoc('${id}')" title="Remove">🗑</button>` : ''}
+      </div>`;
+    c.appendChild(card);
+  });
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function fmtSz(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return (b/1024).toFixed(1) + ' KB'; return (b/1048576).toFixed(1) + ' MB'; }
+
+function triggerUpload(id) {
+  const person = ap();
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.pdf,.jpg,.jpeg,.png,.webp'; inp.multiple = true;
+  inp.onchange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 1) {
+      person.documents[id].file = files[0];
+    } else if (files.length > 1) {
+      person.documents[id].file = { name: `${files.length} files selected`, size: files.reduce((a,f) => a + f.size, 0), _multi: files };
+    }
+    renderTabs(); renderAll();
+    showToast(`Uploaded to "${person.documents[id].name}"`);
+    trackEvent('document_uploaded', { docId: id, country: currentCountry });
+  };
+  inp.click();
+}
+
+function removeFile(id) { const p = ap(); p.documents[id].file = null; renderTabs(); renderAll(); }
+function removeDoc(id) { const p = ap(); delete p.documents[id]; p.docOrder.optional = p.docOrder.optional.filter(d => d !== id); renderTabs(); renderAll(); }
+function togglePrinted(id) {
+  const p = ap(); p.documents[id].printed = !p.documents[id].printed;
+  renderTabs(); renderAll();
+  if (p.documents[id].printed) showToast(`"${p.documents[id].name}" marked as printed`);
+}
+
+function addCustomDoc() {
+  const inp = document.getElementById('customName');
+  const name = inp.value.trim(); if (!name) return;
+  const p = ap();
+  const id = 'custom_' + Date.now();
+  p.documents[id] = { id, name, hint: 'Upload PDF or image', file: null, optional: true, printed: false };
+  p.docOrder.optional.push(id);
+  inp.value = '';
+  renderTabs(); renderAll();
+  showToast(`Added "${name}" for ${p.name}`);
+  trackEvent('custom_doc_added', { country: currentCountry });
+}
+
+document.getElementById('customName').addEventListener('keydown', e => { if (e.key === 'Enter') addCustomDoc(); });
+
+function updateProgress() {
+  const p = ap(); if (!p) return;
+  const all = [...p.docOrder.required, ...p.docOrder.optional];
+  const ready = all.filter(id => p.documents[id]?.file || p.documents[id]?.printed).length;
+  const rr = p.docOrder.required.filter(id => p.documents[id]?.file || p.documents[id]?.printed).length;
+  const printed = all.filter(id => p.documents[id]?.printed).length;
+  const uploaded = all.filter(id => p.documents[id]?.file && !p.documents[id]?.printed).length;
+  const tot = p.docOrder.required.length;
+
+  const pct = tot > 0 ? rr / tot : 0;
+  const circ = 2 * Math.PI * 20;
+  document.getElementById('progressCircle').style.strokeDashoffset = circ * (1 - pct);
+  document.getElementById('progressCount').textContent = `${rr}/${tot}`;
+
+  const lbl = document.getElementById('progressLabel');
+  const parts = [];
+  if (uploaded > 0) parts.push(`${uploaded} to export`);
+  if (printed > 0) parts.push(`${printed} printed`);
+  const sfx = parts.length ? ' — ' + parts.join(', ') : '';
+
+  if (ready === 0) lbl.textContent = `${p.name}: No documents yet`;
+  else if (rr === tot) lbl.textContent = `${p.name}: All required ready${sfx}`;
+  else lbl.textContent = `${p.name}: ${rr} of ${tot} required${sfx}`;
+
+  const hasExp = all.some(id => p.documents[id]?.file && !p.documents[id]?.printed);
+  document.getElementById('exportBtn').disabled = !hasExp;
+  document.getElementById('previewBtn').disabled = !hasExp;
+  document.getElementById('exportBtnLabel').textContent = people.length > 1 ? `Export ${p.name}` : 'Export PDF';
+
+  const anyExp = people.some(per => {
+    const ids = [...per.docOrder.required, ...per.docOrder.optional];
+    return ids.some(id => per.documents[id]?.file && !per.documents[id]?.printed);
+  });
+  const allBtn = document.getElementById('exportAllBtn');
+  allBtn.disabled = !anyExp;
+  allBtn.style.display = people.length > 1 ? '' : 'none';
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DRAG AND DROP
+   ══════════════════════════════════════════════════════════════════════════ */
+
+let dragId = null;
+function handleDragStart(e) { dragId = e.currentTarget.dataset.id; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+function handleDragEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over')); dragId = null; }
+function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('drag-over'); }
+function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  const tid = e.currentTarget.dataset.id;
+  if (!dragId || dragId === tid) return;
+  const p = ap();
+  for (const k of ['required','optional']) {
+    const l = p.docOrder[k]; const fi = l.indexOf(dragId); const ti = l.indexOf(tid);
+    if (fi !== -1 && ti !== -1) { l.splice(fi,1); l.splice(ti,0,dragId); renderAll(); return; }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PDF EXPORT
+   ══════════════════════════════════════════════════════════════════════════ */
+
+async function buildPersonPDF(person, merged, fr, fb, forceDividers = null) {
+  const { rgb } = PDFLib;
+  // forceDividers: true = always show, false = never show, null = use checkbox
+  const dividers = forceDividers !== null ? forceDividers : document.getElementById('addDividers').checked;
+  const all = [...person.docOrder.required, ...person.docOrder.optional];
+  const uids = all.filter(id => person.documents[id]?.file && !person.documents[id]?.printed);
+  if (uids.length === 0) return;
+
+  for (let i = 0; i < uids.length; i++) {
+    const doc = person.documents[uids[i]];
+    const files = doc.file?._multi || [doc.file];
+
+    if (dividers) {
+      const dv = merged.addPage([595.28,841.89]);
+      dv.drawRectangle({ x:0, y:380, width:595.28, height:82, color: rgb(0.96,0.95,0.94) });
+      dv.drawText(`${i+1}`, { x:50, y:404, size:36, font:fb, color: rgb(0.106,0.294,0.42) });
+      dv.drawText(doc.name, { x:100, y:410, size:18, font:fb, color: rgb(0.1,0.09,0.07) });
+      if (doc.hint) dv.drawText(doc.hint, { x:100, y:390, size:11, font:fr, color: rgb(0.48,0.45,0.4) });
+    }
+
+    for (const file of files) {
+      if (!file || file._multi) continue;
+      try {
+        const bytes = await readFile(file);
+        const u8 = new Uint8Array(bytes);
+        const { PDFDocument } = PDFLib;
+        if (file.type === 'application/pdf' || file.name?.toLowerCase().endsWith('.pdf')) {
+          const src = await PDFDocument.load(u8, { ignoreEncryption: true });
+          (await merged.copyPages(src, src.getPageIndices())).forEach(pg => merged.addPage(pg));
+        } else {
+          // Handle all image types (including WebP) by converting via canvas
+          let imgBytes = u8;
+          const isPng = file.type === 'image/png' || file.name?.toLowerCase().endsWith('.png');
+          const needsConversion = file.type === 'image/webp' || file.name?.toLowerCase().endsWith('.webp');
+
+          if (needsConversion) {
+            // Convert WebP to JPEG via canvas
+            imgBytes = await convertImageToJpeg(file);
+          }
+
+          const img = isPng && !needsConversion
+            ? await merged.embedPng(imgBytes)
+            : await merged.embedJpg(imgBytes);
+          const pg = merged.addPage([595.28,841.89]);
+          const { width, height } = img.scale(1);
+          const sc = Math.min(515.28/width, 761.89/height, 1);
+          pg.drawImage(img, { x:(595.28-width*sc)/2, y:(841.89-height*sc)/2, width:width*sc, height:height*sc });
+        }
+      } catch (err) {
+        console.error(err);
+        const ep = merged.addPage([595.28,841.89]);
+        ep.drawText(`Could not process: ${file.name}`, { x:50, y:420, size:14, font:fr, color: rgb(0.6,0.17,0.17) });
+      }
+    }
+  }
+}
+
+/* ── PDF PREVIEW ── */
+
+let _previewBlobUrl = null;
+let _previewBytes = null;
+let _previewFilename = null;
+let _previewDocPages = []; // Track page numbers for each document
+
+async function generateThumbnail(file) {
+  return new Promise((resolve) => {
+    if (!file || file._multi) {
+      resolve(null);
+      return;
+    }
+    const isPdf = file.type === 'application/pdf' || file.name?.toLowerCase().endsWith('.pdf');
+    if (isPdf) {
+      resolve(null); // Will show PDF icon instead
+      return;
+    }
+    // For images, create thumbnail
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxW = 96, maxH = 128;
+        let w = img.width, h = img.height;
+        if (w > maxW || h > maxH) {
+          const ratio = Math.min(maxW / w, maxH / h);
+          w *= ratio; h *= ratio;
+        }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+      img.onerror = () => resolve(null);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function buildPreviewDocList(person) {
+  const all = [...person.docOrder.required, ...person.docOrder.optional];
+  const uids = all.filter(id => person.documents[id]?.file && !person.documents[id]?.printed);
+  const docList = document.getElementById('previewDocList');
+  docList.innerHTML = '';
+  _previewDocPages = [];
+
+  // Update doc count
+  document.getElementById('previewDocCount').textContent = `${uids.length} doc${uids.length !== 1 ? 's' : ''}`;
+
+  if (uids.length === 0) return;
+
+  const dividers = document.getElementById('addDividers').checked;
+  let currentPage = 1; // Start from page 1 (no cover page)
+
+  for (let i = 0; i < uids.length; i++) {
+    const doc = person.documents[uids[i]];
+    const files = doc.file?._multi || [doc.file];
+    const startPage = currentPage;
+
+    // Calculate pages for this document
+    if (dividers) currentPage++; // Divider page
+
+    let docPageCount = 0;
+    let hasMultiplePdfs = false;
+    for (const file of files) {
+      if (!file || file._multi) continue;
+      const isPdf = file.type === 'application/pdf' || file.name?.toLowerCase().endsWith('.pdf');
+      if (isPdf) {
+        try {
+          const bytes = await readFile(file);
+          const src = await PDFLib.PDFDocument.load(new Uint8Array(bytes), { ignoreEncryption: true });
+          const pc = src.getPageCount();
+          docPageCount += pc;
+          if (pc > 1) hasMultiplePdfs = true;
+        } catch { docPageCount += 1; }
+      } else {
+        docPageCount += 1; // Image = 1 page
+      }
+    }
+    currentPage += docPageCount;
+
+    // Generate thumbnail from first file
+    const firstFile = files.find(f => f && !f._multi);
+    const thumbUrl = await generateThumbnail(firstFile);
+    const isPdf = firstFile && (firstFile.type === 'application/pdf' || firstFile.name?.toLowerCase().endsWith('.pdf'));
+
+    const item = document.createElement('div');
+    item.className = 'preview-doc-item';
+    item.dataset.startPage = dividers ? startPage + 1 : startPage;
+
+    const thumbHtml = thumbUrl
+      ? `<img src="${thumbUrl}" alt="${esc(doc.name)}">`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+           <polyline points="14 2 14 8 20 8"/>
+         </svg>`;
+
+    const pageText = docPageCount > 1
+      ? `${docPageCount} pages`
+      : `Page ${dividers ? startPage + 1 : startPage}`;
+
+    const typeClass = isPdf ? 'pdf' : 'image';
+    const typeLabel = isPdf ? 'PDF' : 'IMG';
+
+    item.innerHTML = `
+      <div class="preview-doc-thumb">${thumbHtml}</div>
+      <div class="preview-doc-info">
+        <div class="preview-doc-name">${esc(doc.name)}</div>
+        <div class="preview-doc-meta">
+          <span class="preview-doc-pages">${pageText}</span>
+          <span class="preview-doc-type ${typeClass}">${typeLabel}</span>
+        </div>
+      </div>
+    `;
+
+    _previewDocPages.push({ id: uids[i], name: doc.name, startPage, endPage: currentPage - 1 });
+
+    const navPage = dividers ? startPage + 1 : startPage;
+    item.onclick = () => {
+      document.querySelectorAll('.preview-doc-item').forEach(el => el.classList.remove('active'));
+      item.classList.add('active');
+      navigateToPage(navPage);
+    };
+
+    // Mark first item as active
+    if (i === 0) {
+      item.classList.add('active');
+    }
+
+    docList.appendChild(item);
+  }
+}
+
+function navigateToPage(pageNum) {
+  const frame = document.getElementById('previewFrame');
+  if (_previewBlobUrl) {
+    // PDF.js and browser PDF viewers support #page=N
+    // We need to force navigation when hash changes on same URL
+    const targetSrc = `${_previewBlobUrl}#page=${pageNum}`;
+    const currentBase = frame.src.split('#')[0];
+
+    if (currentBase === _previewBlobUrl) {
+      // Same base URL - force reload by briefly clearing then setting
+      frame.src = 'about:blank';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          frame.src = targetSrc;
+        });
+      });
+    } else {
+      frame.src = targetSrc;
+    }
+  }
+}
+
+async function previewCurrentPDF() {
+  const person = ap();
+  const btn = document.getElementById('previewBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="export-spinner"></span> Building…';
+
+  // Reset sidebar state
+  document.getElementById('previewSidebar').classList.remove('collapsed');
+  document.getElementById('previewToggleSidebar').classList.add('active');
+
+  // Clear previous doc list and show loading
+  document.getElementById('previewDocList').innerHTML = '<div class="preview-loading"><span class="export-spinner"></span><span>Building preview...</span></div>';
+  document.getElementById('previewDocCount').textContent = '...';
+
+  try {
+    const { PDFDocument, StandardFonts } = PDFLib;
+    const m = await PDFDocument.create();
+    const fr = await m.embedFont(StandardFonts.Helvetica);
+    const fb = await m.embedFont(StandardFonts.HelveticaBold);
+    await buildPersonPDF(person, m, fr, fb, true); // Preview always shows dividers for organization
+    if (m.getPageCount() === 0) { showToast('No documents to export'); return; }
+    const countryDocs = getCountryDocs();
+    _previewFilename = `${countryDocs.name}_Visa_${san(person.name)}_${new Date().toISOString().slice(0,10)}.pdf`;
+    _previewBytes = await m.save();
+    if (_previewBlobUrl) URL.revokeObjectURL(_previewBlobUrl);
+    const blob = new Blob([_previewBytes], { type: 'application/pdf' });
+    _previewBlobUrl = URL.createObjectURL(blob);
+    document.getElementById('previewFrame').src = _previewBlobUrl;
+    document.getElementById('previewTitle').innerHTML = `${esc(_previewFilename)} <span>— ${m.getPageCount()} pages</span>`;
+    document.getElementById('previewOverlay').classList.add('open');
+
+    // Add keyboard listener
+    document.addEventListener('keydown', handlePreviewKeydown);
+
+    // Build document list sidebar
+    await buildPreviewDocList(person);
+
+    trackEvent('pdf_previewed', { country: currentCountry });
+  } catch (err) { console.error(err); showToast('Preview failed — try exporting directly'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Preview PDF`;
+    updateProgress();
+  }
+}
+
+function closePreviewModal() {
+  document.getElementById('previewOverlay').classList.remove('open');
+  document.getElementById('previewFrame').src = '';
+  document.getElementById('previewDocList').innerHTML = '';
+  document.getElementById('previewDocCount').textContent = '0 docs';
+  _previewDocPages = [];
+  if (_previewBlobUrl) { URL.revokeObjectURL(_previewBlobUrl); _previewBlobUrl = null; }
+  document.removeEventListener('keydown', handlePreviewKeydown);
+}
+
+function togglePreviewSidebar() {
+  const sidebar = document.getElementById('previewSidebar');
+  const btn = document.getElementById('previewToggleSidebar');
+  sidebar.classList.toggle('collapsed');
+  btn.classList.toggle('active');
+}
+
+function handlePreviewKeydown(e) {
+  if (e.key === 'Escape') {
+    closePreviewModal();
+  } else if (e.key === 'b' || e.key === 'B') {
+    togglePreviewSidebar();
+  } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const items = document.querySelectorAll('.preview-doc-item');
+    const activeItem = document.querySelector('.preview-doc-item.active');
+    let currentIdx = Array.from(items).indexOf(activeItem);
+    if (currentIdx === -1) currentIdx = e.key === 'ArrowDown' ? -1 : items.length;
+    const nextIdx = e.key === 'ArrowDown'
+      ? Math.min(currentIdx + 1, items.length - 1)
+      : Math.max(currentIdx - 1, 0);
+    if (items[nextIdx]) items[nextIdx].click();
+  }
+}
+
+function downloadFromPreview() {
+  if (_previewBytes && _previewFilename) {
+    dl(_previewBytes, _previewFilename);
+    showToast('Downloading…');
+  }
+}
+
+async function exportCurrentPDF() {
+  const person = ap();
+  const btn = document.getElementById('exportBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="export-spinner"></span> Building…';
+  try {
+    const { PDFDocument, StandardFonts } = PDFLib;
+    const m = await PDFDocument.create();
+    const fr = await m.embedFont(StandardFonts.Helvetica);
+    const fb = await m.embedFont(StandardFonts.HelveticaBold);
+    await buildPersonPDF(person, m, fr, fb, false); // Export without dividers
+    if (m.getPageCount() === 0) { showToast('No documents to export'); return; }
+    const countryDocs = getCountryDocs();
+    dl(await m.save(), `${countryDocs.name}_Visa_${san(person.name)}_${new Date().toISOString().slice(0,10)}.pdf`);
+    showToast(`PDF exported for ${person.name}`);
+    trackEvent('pdf_exported', { country: currentCountry, type: 'single', pages: m.getPageCount() });
+  } catch (err) { console.error(err); showToast('Export failed'); }
+  finally { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span id="exportBtnLabel">${people.length>1?'Export '+ap().name:'Export PDF'}</span>`; updateProgress(); }
+}
+
+async function exportAllPDF() {
+  const btn = document.getElementById('exportAllBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="export-spinner"></span> Building…';
+  try {
+    const { PDFDocument, StandardFonts } = PDFLib;
+    const m = await PDFDocument.create();
+    const fr = await m.embedFont(StandardFonts.Helvetica);
+    const fb = await m.embedFont(StandardFonts.HelveticaBold);
+    for (const p of people) await buildPersonPDF(p, m, fr, fb, false); // Export without dividers
+    if (m.getPageCount() === 0) { showToast('No documents to export'); return; }
+    const countryDocs = getCountryDocs();
+    dl(await m.save(), `${countryDocs.name}_Visa_All_${new Date().toISOString().slice(0,10)}.pdf`);
+    showToast(`PDF exported for all ${people.length} travellers`);
+    trackEvent('pdf_exported', { country: currentCountry, type: 'all', travellers: people.length, pages: m.getPageCount() });
+  } catch (err) { console.error(err); showToast('Export failed'); }
+  finally { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Export All`; updateProgress(); }
+}
+
+function dl(bytes, fn) {
+  const b = new Blob([bytes], { type: 'application/pdf' });
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a'); a.href = u; a.download = fn; a.click();
+  URL.revokeObjectURL(u);
+}
+function san(n) { return n.replace(/[^a-zA-Z0-9_\- ]/g,'').replace(/\s+/g,'_'); }
+function readFile(f) { return new Promise((res,rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsArrayBuffer(f); }); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+
+// Convert WebP or other formats to JPEG for PDF embedding
+function convertImageToJpeg(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        // Fill white background for transparency
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            blob.arrayBuffer().then(buf => resolve(new Uint8Array(buf)));
+          } else {
+            reject(new Error('Failed to convert image'));
+          }
+        }, 'image/jpeg', 0.92);
+      };
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SERVICE WORKER REGISTRATION (PWA)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered'))
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+
+init();
+</script>
+</body>
+</html>
