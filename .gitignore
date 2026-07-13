@@ -1,2 +1,19 @@
+# Vercel
 .vercel
+
+# Claude agents
 .claude/agents
+
+# macOS
+.DS_Store
+*.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Local development
+*.local

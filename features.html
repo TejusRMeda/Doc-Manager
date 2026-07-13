@@ -1,2589 +1,1273 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Features - Schengen Visa Document Collator</title>
-  <meta name="description" content="Explore all features of the free Schengen Visa Document Collator - smart templates, multi-applicant support, drag-and-drop organization, PDF merging, and more.">
-
-  <link href="https://fonts.cdnfonts.com/css/switzer" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="apple-touch-icon" href="icon-192.png">
-
-  <style>
-    :root {
-      --bg: #F6F4F0;
-      --surface: #FFFFFF;
-      --surface-alt: #EDE9E3;
-      --border: #D6D0C6;
-      --border-light: #E8E3DB;
-      --text: #1A1612;
-      --text-muted: #7A7267;
-      --text-light: #A69D91;
-      --accent: #1B4B6B;
-      --accent-light: #E8F0F6;
-      --accent-hover: #153D58;
-      --success: #2D6A4F;
-      --success-bg: #E8F5ED;
-      --success-border: #B7DBCA;
-      --warning: #B45309;
-      --warning-bg: #FEF3C7;
-      --danger: #9B2C2C;
-      --danger-bg: #FEE2E2;
-      --purple: #7C3AED;
-      --purple-bg: #F5F3FF;
-      --shadow-sm: 0 1px 2px rgba(26,22,18,0.06);
-      --shadow-md: 0 4px 12px rgba(26,22,18,0.08);
-      --shadow-lg: 0 8px 30px rgba(26,22,18,0.12);
-      --shadow-xl: 0 20px 50px rgba(26,22,18,0.15);
-      --radius: 12px;
-      --radius-lg: 20px;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Switzer', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* Navigation */
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      padding: 16px 24px;
-      background: rgba(246,244,240,0.9);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-light);
-      transition: all 0.3s ease;
-    }
-
-    .nav.scrolled {
-      padding: 12px 24px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .nav-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      font-size: 15px;
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    .nav-flag {
-      display: flex;
-      gap: 2px;
-    }
-
-    .nav-flag span {
-      width: 3px;
-      height: 16px;
-      border-radius: 1px;
-    }
-
-    .flag-blue { background: #002395; }
-    .flag-white { background: #FFFFFF; border: 1px solid #eee; }
-    .flag-red { background: #ED2939; }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .nav-link {
-      font-size: 14px;
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .nav-link:hover {
-      color: var(--text);
-    }
-
-    .nav-cta {
-      padding: 10px 20px;
-      font-size: 14px;
-      font-weight: 600;
-      font-family: inherit;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .nav-cta:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-    }
-
-    /* Hero Section */
-    .hero {
-      padding: 160px 24px 100px;
-      text-align: center;
-      background: linear-gradient(180deg, var(--bg) 0%, white 50%, var(--accent-light) 100%);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(27,75,107,0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero-inner {
-      max-width: 900px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: var(--success-bg);
-      color: var(--success);
-      font-size: 13px;
-      font-weight: 600;
-      border-radius: 24px;
-      margin-bottom: 28px;
-      border: 1px solid var(--success-border);
-    }
-
-    .hero h1 {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-size: clamp(42px, 7vw, 72px);
-      font-weight: 400;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      margin-bottom: 24px;
-      color: var(--text);
-    }
-
-    .hero h1 span {
-      color: var(--accent);
-      position: relative;
-    }
-
-    .hero h1 span::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, #002395, #FFFFFF, #ED2939);
-      border-radius: 3px;
-      opacity: 0.4;
-    }
-
-    .hero-subtitle {
-      font-size: 20px;
-      color: var(--text-muted);
-      max-width: 640px;
-      margin: 0 auto 40px;
-      line-height: 1.7;
-    }
-
-    .hero-cta-group {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 18px 36px;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: inherit;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-      box-shadow: var(--shadow-md);
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .btn-primary svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 18px 32px;
-      font-size: 16px;
-      font-weight: 500;
-      font-family: inherit;
-      background: transparent;
-      color: var(--text-muted);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .btn-secondary:hover {
-      background: var(--surface);
-      color: var(--text);
-      border-color: var(--border);
-    }
-
-    /* Feature Sections */
-    .features-grid {
-      padding: 80px 24px;
-      background: white;
-    }
-
-    .feature-section {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 80px 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-
-    .feature-section:not(:last-child) {
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    .feature-section.reverse {
-      direction: rtl;
-    }
-
-    .feature-section.reverse > * {
-      direction: ltr;
-    }
-
-    .feature-content {
-      padding: 0 20px;
-    }
-
-    .feature-number {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      background: var(--accent-light);
-      color: var(--accent);
-      font-family: 'Instrument Serif', serif;
-      font-size: 18px;
-      border-radius: 50%;
-      margin-bottom: 20px;
-    }
-
-    .feature-label {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-
-    .feature-title {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-size: clamp(28px, 4vw, 38px);
-      font-weight: 400;
-      line-height: 1.2;
-      margin-bottom: 16px;
-    }
-
-    .feature-description {
-      font-size: 17px;
-      color: var(--text-muted);
-      line-height: 1.7;
-      margin-bottom: 24px;
-    }
-
-    .feature-bullets {
-      list-style: none;
-    }
-
-    .feature-bullets li {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      font-size: 15px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .feature-bullets li svg {
-      width: 20px;
-      height: 20px;
-      color: var(--success);
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .feature-mockup {
-      padding: 20px;
-    }
-
-    /* UI Mockup Styles */
-    .mockup-frame {
-      background: var(--bg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-xl);
-      overflow: hidden;
-      border: 1px solid var(--border-light);
-    }
-
-    .mockup-header {
-      background: var(--accent);
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .mockup-dots {
-      display: flex;
-      gap: 6px;
-    }
-
-    .mockup-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.3);
-    }
-
-    .mockup-title {
-      font-size: 12px;
-      color: rgba(255,255,255,0.8);
-      font-weight: 500;
-    }
-
-    .mockup-body {
-      padding: 24px;
-    }
-
-    /* Template Mockup */
-    .template-mockup .country-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .country-card {
-      background: white;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .country-card:hover {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .country-card.selected {
-      border-color: var(--accent);
-      background: var(--accent-light);
-    }
-
-    .country-card .flag {
-      font-size: 24px;
-    }
-
-    .country-card .name {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .country-card .docs {
-      font-size: 11px;
-      color: var(--text-light);
-    }
-
-    .country-card .check {
-      margin-left: auto;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-    }
-
-    .country-card.selected .check {
-      opacity: 1;
-    }
-
-    .country-card .check svg {
-      width: 12px;
-      height: 12px;
-      stroke: white;
-    }
-
-    /* Custom List Mockup */
-    .custom-list-mockup .paste-area {
-      background: white;
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .paste-area-icon {
-      width: 40px;
-      height: 40px;
-      background: var(--accent-light);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-    }
-
-    .paste-area-icon svg {
-      width: 20px;
-      height: 20px;
-      color: var(--accent);
-    }
-
-    .paste-area-text {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    .paste-area-text strong {
-      color: var(--accent);
-    }
-
-    .custom-input-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .custom-input {
-      flex: 1;
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: inherit;
-      background: white;
-    }
-
-    .custom-add-btn {
-      padding: 12px 20px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    /* Tabs Mockup */
-    .tabs-mockup .mockup-tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 2px solid var(--border-light);
-      margin-bottom: 20px;
-    }
-
-    .mockup-tab {
-      padding: 14px 20px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-muted);
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: transparent;
-      transition: all 0.2s;
-    }
-
-    .mockup-tab.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-      font-weight: 600;
-    }
-
-    .mockup-tab .badge {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 10px;
-      background: var(--border-light);
-      color: var(--text-muted);
-    }
-
-    .mockup-tab.active .badge {
-      background: var(--success-bg);
-      color: var(--success);
-    }
-
-    .mockup-tab-add {
-      padding: 14px 16px;
-      font-size: 18px;
-      color: var(--text-light);
-      cursor: pointer;
-    }
-
-    .traveler-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .traveler-card {
-      background: white;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .traveler-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--accent-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent);
-    }
-
-    .traveler-info {
-      flex: 1;
-    }
-
-    .traveler-name {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .traveler-progress {
-      font-size: 11px;
-      color: var(--text-light);
-    }
-
-    .traveler-status {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-weight: 500;
-    }
-
-    .traveler-status.complete {
-      background: var(--success-bg);
-      color: var(--success);
-    }
-
-    .traveler-status.pending {
-      background: var(--warning-bg);
-      color: var(--warning);
-    }
-
-    /* Drag Drop Mockup */
-    .drag-mockup .doc-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .drag-doc-card {
-      background: white;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.2s;
-    }
-
-    .drag-doc-card.dragging {
-      background: var(--accent-light);
-      border-color: var(--accent);
-      box-shadow: var(--shadow-lg);
-      transform: rotate(2deg) scale(1.02);
-    }
-
-    .drag-doc-card.drag-over {
-      border-color: var(--accent);
-      border-style: dashed;
-    }
-
-    .drag-handle {
-      color: var(--text-light);
-      cursor: grab;
-    }
-
-    .drag-handle svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .doc-status-check {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: var(--success);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .doc-status-check svg {
-      width: 12px;
-      height: 12px;
-      stroke: white;
-    }
-
-    .doc-status-empty {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 2px solid var(--border);
-    }
-
-    .doc-name {
-      flex: 1;
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    .doc-order {
-      font-size: 11px;
-      color: var(--text-light);
-      padding: 4px 10px;
-      background: var(--surface-alt);
-      border-radius: 12px;
-    }
-
-    /* Upload Mockup */
-    .upload-mockup .upload-card {
-      background: white;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 12px;
-    }
-
-    .upload-card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .upload-doc-name {
-      flex: 1;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .upload-btn {
-      padding: 8px 16px;
-      font-size: 12px;
-      font-weight: 500;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .upload-progress {
-      background: var(--surface-alt);
-      border-radius: 4px;
-      height: 6px;
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-
-    .upload-progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--success));
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    .upload-file-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--success);
-    }
-
-    .upload-file-info svg {
-      width: 14px;
-      height: 14px;
-    }
-
-    /* Preview Mockup */
-    .preview-mockup .preview-container {
-      background: #0a0a0b;
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    .preview-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: rgba(20,20,22,0.98);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .preview-nav {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .preview-nav-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.08);
-      border: none;
-      color: rgba(255,255,255,0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .preview-nav-btn svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .preview-page-info {
-      font-size: 12px;
-      color: rgba(255,255,255,0.6);
-    }
-
-    .preview-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .preview-download-btn {
-      padding: 8px 16px;
-      font-size: 12px;
-      font-weight: 500;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    .preview-download-btn svg {
-      width: 14px;
-      height: 14px;
-    }
-
-    .preview-content {
-      display: flex;
-      gap: 16px;
-      padding: 16px;
-    }
-
-    .preview-thumbnails {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .preview-thumb {
-      width: 48px;
-      height: 64px;
-      background: white;
-      border-radius: 4px;
-      border: 2px solid transparent;
-      cursor: pointer;
-      font-size: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-light);
-    }
-
-    .preview-thumb.active {
-      border-color: var(--accent);
-    }
-
-    .preview-main {
-      flex: 1;
-      background: white;
-      border-radius: 8px;
-      aspect-ratio: 8.5/11;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .preview-doc-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--accent-light);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-    }
-
-    .preview-doc-icon svg {
-      width: 24px;
-      height: 24px;
-      color: var(--accent);
-    }
-
-    .preview-doc-title {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-
-    .preview-doc-subtitle {
-      font-size: 9px;
-      color: var(--text-light);
-    }
-
-    /* Print Tracking Mockup */
-    .print-mockup .print-doc-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .print-doc-card {
-      background: white;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .print-doc-card.printed {
-      background: var(--purple-bg);
-      border-color: #C4B5FD;
-    }
-
-    .print-status {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .print-status.uploaded {
-      background: var(--success);
-    }
-
-    .print-status.uploaded svg {
-      width: 12px;
-      height: 12px;
-      stroke: white;
-    }
-
-    .print-status.printed {
-      background: var(--purple);
-    }
-
-    .print-status.printed svg {
-      width: 12px;
-      height: 12px;
-      stroke: white;
-    }
-
-    .print-doc-info {
-      flex: 1;
-    }
-
-    .print-doc-name {
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    .print-doc-file {
-      font-size: 11px;
-      color: var(--text-light);
-    }
-
-    .print-btn {
-      padding: 6px 12px;
-      font-size: 11px;
-      font-weight: 500;
-      border: 1px solid var(--border);
-      background: white;
-      color: var(--text-muted);
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .print-btn.active {
-      background: var(--purple);
-      color: white;
-      border-color: var(--purple);
-    }
-
-    .print-btn svg {
-      width: 12px;
-      height: 12px;
-    }
-
-    .printed-badge {
-      font-size: 10px;
-      font-weight: 500;
-      color: var(--purple);
-      background: #EDE9FE;
-      padding: 3px 8px;
-      border-radius: 4px;
-    }
-
-    /* Progress Dashboard Mockup */
-    .progress-mockup .progress-dashboard {
-      background: white;
-      border-radius: var(--radius);
-      padding: 24px;
-      border: 1px solid var(--border-light);
-    }
-
-    .progress-header {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .progress-ring-large {
-      width: 80px;
-      height: 80px;
-      position: relative;
-    }
-
-    .progress-ring-large svg {
-      transform: rotate(-90deg);
-    }
-
-    .progress-ring-bg {
-      stroke: var(--border-light);
-      fill: none;
-      stroke-width: 6;
-    }
-
-    .progress-ring-fill {
-      stroke: var(--success);
-      fill: none;
-      stroke-width: 6;
-      stroke-linecap: round;
-      stroke-dasharray: 226;
-      stroke-dashoffset: 56.5;
-      transition: stroke-dashoffset 0.5s ease;
-    }
-
-    .progress-ring-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
-
-    .progress-percent {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .progress-label {
-      font-size: 9px;
-      color: var(--text-light);
-      text-transform: uppercase;
-    }
-
-    .progress-stats {
-      flex: 1;
-    }
-
-    .progress-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .progress-subtitle {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .progress-breakdown {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .progress-stat {
-      background: var(--surface-alt);
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
-    }
-
-    .progress-stat-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .progress-stat-label {
-      font-size: 10px;
-      color: var(--text-light);
-      text-transform: uppercase;
-    }
-
-    .progress-stat.success .progress-stat-value {
-      color: var(--success);
-    }
-
-    .progress-stat.purple .progress-stat-value {
-      color: var(--purple);
-    }
-
-    /* Mobile Mockup */
-    .mobile-mockup {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      align-items: flex-end;
-    }
-
-    .phone-frame {
-      width: 220px;
-      background: #1a1a1a;
-      border-radius: 36px;
-      padding: 12px;
-      box-shadow: var(--shadow-xl);
-    }
-
-    .phone-frame.small {
-      width: 180px;
-    }
-
-    .phone-screen {
-      background: var(--bg);
-      border-radius: 28px;
-      overflow: hidden;
-      aspect-ratio: 9/16;
-    }
-
-    .phone-header {
-      background: var(--accent);
-      padding: 32px 16px 12px;
-    }
-
-    .phone-notch {
-      width: 80px;
-      height: 24px;
-      background: #1a1a1a;
-      border-radius: 12px;
-      margin: -20px auto 12px;
-    }
-
-    .phone-title {
-      font-size: 11px;
-      color: white;
-      font-weight: 500;
-    }
-
-    .phone-body {
-      padding: 12px;
-    }
-
-    .phone-doc-card {
-      background: white;
-      border: 1px solid var(--border-light);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .phone-doc-status {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--success);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .phone-doc-status svg {
-      width: 10px;
-      height: 10px;
-      stroke: white;
-    }
-
-    .phone-doc-status.empty {
-      background: transparent;
-      border: 2px solid var(--border);
-    }
-
-    .phone-doc-name {
-      font-size: 9px;
-      font-weight: 500;
-      flex: 1;
-    }
-
-    /* How It Works Section */
-    .how-it-works {
-      padding: 100px 24px;
-      background: var(--bg);
-    }
-
-    .how-inner {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .how-header {
-      text-align: center;
-      margin-bottom: 64px;
-    }
-
-    .how-header .section-label {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-
-    .how-header .section-title {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-size: clamp(32px, 5vw, 48px);
-      font-weight: 400;
-      margin-bottom: 16px;
-    }
-
-    .how-header .section-subtitle {
-      font-size: 18px;
-      color: var(--text-muted);
-      max-width: 560px;
-      margin: 0 auto;
-    }
-
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 32px;
-    }
-
-    .step-card {
-      text-align: center;
-      position: relative;
-    }
-
-    .step-card:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      top: 40px;
-      right: -16px;
-      width: 32px;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), transparent);
-    }
-
-    .step-icon {
-      width: 80px;
-      height: 80px;
-      background: white;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      box-shadow: var(--shadow-md);
-      position: relative;
-    }
-
-    .step-icon svg {
-      width: 36px;
-      height: 36px;
-      color: var(--accent);
-    }
-
-    .step-number-badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      width: 28px;
-      height: 28px;
-      background: var(--accent);
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .step-title {
-      font-size: 17px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .step-description {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-
-    /* FAQ Section */
-    .faq {
-      padding: 100px 24px;
-      background: white;
-    }
-
-    .faq-inner {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .faq-header {
-      text-align: center;
-      margin-bottom: 56px;
-    }
-
-    .faq-header .section-title {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-size: clamp(32px, 5vw, 48px);
-      font-weight: 400;
-    }
-
-    .faq-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .faq-item {
-      background: var(--bg);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    .faq-question {
-      width: 100%;
-      padding: 24px;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: inherit;
-      text-align: left;
-      background: none;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      color: var(--text);
-    }
-
-    .faq-question:hover {
-      background: var(--surface);
-    }
-
-    .faq-question svg {
-      width: 20px;
-      height: 20px;
-      color: var(--text-light);
-      transition: transform 0.3s ease;
-      flex-shrink: 0;
-    }
-
-    .faq-item.open .faq-question svg {
-      transform: rotate(180deg);
-    }
-
-    .faq-answer {
-      display: none;
-      padding: 0 24px 24px;
-      font-size: 15px;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-
-    .faq-item.open .faq-answer {
-      display: block;
-    }
-
-    /* CTA Section */
-    .cta {
-      padding: 120px 24px;
-      background: var(--accent);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta::before {
-      content: '';
-      position: absolute;
-      top: -200px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .cta-inner {
-      max-width: 700px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .cta-flag {
-      display: flex;
-      justify-content: center;
-      gap: 4px;
-      margin-bottom: 28px;
-    }
-
-    .cta-flag span {
-      width: 6px;
-      height: 32px;
-      border-radius: 3px;
-    }
-
-    .cta-title {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-size: clamp(36px, 6vw, 56px);
-      font-weight: 400;
-      color: white;
-      margin-bottom: 20px;
-      line-height: 1.15;
-    }
-
-    .cta-subtitle {
-      font-size: 18px;
-      color: rgba(255,255,255,0.8);
-      margin-bottom: 40px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .cta-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      padding: 20px 40px;
-      font-size: 18px;
-      font-weight: 600;
-      font-family: inherit;
-      background: white;
-      color: var(--accent);
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    }
-
-    .cta-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-    }
-
-    .cta-btn svg {
-      width: 22px;
-      height: 22px;
-    }
-
-    .cta-proof {
-      display: flex;
-      justify-content: center;
-      gap: 32px;
-      margin-top: 40px;
-      flex-wrap: wrap;
-    }
-
-    .cta-proof-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: rgba(255,255,255,0.7);
-    }
-
-    .cta-proof-item svg {
-      width: 18px;
-      height: 18px;
-      color: rgba(255,255,255,0.9);
-    }
-
-    /* Footer */
-    .footer {
-      padding: 48px 24px;
-      background: var(--text);
-      color: rgba(255,255,255,0.6);
-      text-align: center;
-      font-size: 14px;
-    }
-
-    .footer-inner {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 32px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer a {
-      color: rgba(255,255,255,0.8);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer a:hover {
-      color: white;
-    }
-
-    /* Animations */
-    .animate-on-scroll {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .animate-on-scroll.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .feature-section {
-        grid-template-columns: 1fr;
-        gap: 48px;
-      }
-
-      .feature-section.reverse {
-        direction: ltr;
-      }
-
-      .feature-mockup {
-        order: -1;
-      }
-
-      .steps-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .step-card::after {
-        display: none;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .nav-links {
-        display: none;
-      }
-
-      .hero {
-        padding: 120px 20px 80px;
-      }
-
-      .features-grid {
-        padding: 40px 16px;
-      }
-
-      .feature-section {
-        padding: 40px 0;
-      }
-
-      .steps-grid {
-        grid-template-columns: 1fr;
-        gap: 40px;
-      }
-
-      .mobile-mockup {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .phone-frame.small {
-        display: none;
-      }
-
-      .template-mockup .country-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .progress-breakdown {
-        grid-template-columns: 1fr;
-      }
-
-      .cta-proof {
-        flex-direction: column;
-        gap: 16px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .hero h1 {
-        font-size: 32px;
-      }
-
-      .hero-subtitle {
-        font-size: 16px;
-      }
-
-      .hero-cta-group {
-        flex-direction: column;
-      }
-
-      .btn-primary, .btn-secondary {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - Visa Doc Collator</title>
+    <meta name="description" content="Explore all features of the free Schengen Visa Document Collator - smart templates, multi-applicant support, drag-and-drop organization, PDF merging, and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        /* ===== Cal.com Design System Tokens ===== */
+        :root {
+            /* Colors */
+            --primary: #111111;
+            --primary-active: #242424;
+            --ink: #111111;
+            --body: #374151;
+            --muted: #6b7280;
+            --muted-soft: #898989;
+            --hairline: #e5e7eb;
+            --hairline-soft: #f3f4f6;
+            --canvas: #ffffff;
+            --surface-soft: #f8f9fa;
+            --surface-card: #f5f5f5;
+            --surface-dark: #101010;
+            --on-primary: #ffffff;
+            --on-dark: #ffffff;
+            --on-dark-soft: #a1a1aa;
+            --success: #10b981;
+            --error: #ef4444;
+
+            /* Spacing */
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 48px;
+            --spacing-section: 96px;
+
+            /* Border Radius */
+            --rounded-sm: 6px;
+            --rounded-md: 8px;
+            --rounded-lg: 12px;
+            --rounded-xl: 16px;
+            --rounded-pill: 9999px;
+        }
+
+        /* ===== Reset & Base ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--body);
+            background-color: var(--canvas);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ===== Typography ===== */
+        .display-xl {
+            font-size: 64px;
+            font-weight: 600;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            color: var(--ink);
+        }
+
+        .display-lg {
+            font-size: 48px;
+            font-weight: 600;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            color: var(--ink);
+        }
+
+        .display-md {
+            font-size: 36px;
+            font-weight: 600;
+            line-height: 1.15;
+            letter-spacing: -1px;
+            color: var(--ink);
+        }
+
+        .display-sm {
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            color: var(--ink);
+        }
+
+        .title-lg {
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.3;
+            letter-spacing: -0.3px;
+            color: var(--ink);
+        }
+
+        .title-md {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--ink);
+        }
+
+        .body-md {
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--body);
+        }
+
+        .body-sm {
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.5;
+            color: var(--muted);
+        }
+
+        .label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--primary);
+        }
+
+        /* ===== Layout ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+
+        /* ===== Navigation ===== */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--canvas);
+            border-bottom: 1px solid var(--hairline-soft);
+            height: 64px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo .flag {
+            display: flex;
+            gap: 2px;
+        }
+
+        .nav-logo .flag span {
+            width: 4px;
+            height: 18px;
+            border-radius: 1px;
+        }
+
+        .nav-logo .flag .blue { background: #002395; }
+        .nav-logo .flag .white { background: var(--canvas); border: 1px solid var(--hairline); }
+        .nav-logo .flag .red { background: #ED2939; }
+
+        .nav-logo span.brand {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xl);
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--muted);
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--ink);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--rounded-md);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--on-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-active);
+        }
+
+        .btn-secondary {
+            background: var(--canvas);
+            color: var(--ink);
+            border: 1px solid var(--hairline);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--muted);
+        }
+
+        .btn-white {
+            background: var(--on-primary);
+            color: var(--primary);
+        }
+
+        .btn-outline-white {
+            background: transparent;
+            color: var(--on-primary);
+            border: 1px solid var(--on-primary);
+        }
+
+        /* ===== Hero Section ===== */
+        .hero {
+            padding: var(--spacing-section) 0;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--success);
+            color: var(--on-primary);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: var(--rounded-pill);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .hero-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .hero h1 {
+            max-width: 900px;
+            margin: 0 auto var(--spacing-lg);
+        }
+
+        .hero-subtitle {
+            max-width: 700px;
+            margin: 0 auto var(--spacing-xl);
+            font-size: 18px;
+            line-height: 1.6;
+            color: var(--body);
+        }
+
+        .hero-ctas {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .hero-ctas .btn {
+            padding: 18px 36px;
+            font-size: 16px;
+            border-radius: var(--rounded-lg);
+        }
+
+        /* ===== Features Section ===== */
+        .features-section {
+            padding: 0 0 var(--spacing-section);
+        }
+
+        .feature {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            padding: 80px 0;
+            border-top: 1px solid var(--hairline-soft);
+        }
+
+        .feature:nth-child(even) {
+            direction: rtl;
+        }
+
+        .feature:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feature-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: var(--surface-card);
+            border-radius: var(--rounded-pill);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .feature-title {
+            font-size: 38px;
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            color: var(--ink);
+        }
+
+        .feature-desc {
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .feature-bullets {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .feature-bullet {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 15px;
+            color: var(--muted);
+        }
+
+        .feature-bullet svg {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            color: var(--success);
+            margin-top: 2px;
+        }
+
+        .feature-image {
+            border-radius: var(--rounded-xl);
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            height: 420px;
+            background: var(--surface-card);
+        }
+
+        .feature-image img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            object-position: top center;
+        }
+
+        /* ===== How It Works Section ===== */
+        .how-it-works {
+            background: var(--surface-card);
+            padding: var(--spacing-section) 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-header .label {
+            margin-bottom: var(--spacing-md);
+            display: block;
+        }
+
+        .section-header h2 {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: var(--muted);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-xl);
+        }
+
+        .step {
+            text-align: center;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            margin: 0 auto var(--spacing-lg);
+            background: var(--primary);
+            color: var(--on-primary);
+            font-size: 24px;
+            font-weight: 600;
+            border-radius: var(--rounded-pill);
+        }
+
+        .step h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .step p {
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ===== FAQ Section ===== */
+        .faq-section {
+            padding: var(--spacing-section) 0;
+        }
+
+        .faq-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--surface-card);
+            border-radius: var(--rounded-lg);
+            padding: var(--spacing-lg);
+        }
+
+        .faq-question {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .faq-answer {
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* ===== CTA Section ===== */
+        .cta-section {
+            background: var(--primary);
+            padding: var(--spacing-section) 0;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            color: var(--on-primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .cta-section p {
+            color: var(--on-primary);
+            opacity: 0.9;
+            font-size: 18px;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .cta-buttons .btn {
+            padding: 18px 36px;
+            font-size: 16px;
+            border-radius: var(--rounded-lg);
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            background: var(--surface-dark);
+            padding: 64px 0;
+        }
+
+        .footer-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-xxl);
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .footer-brand .nav-logo span.brand {
+            color: var(--on-dark);
+        }
+
+        .footer-brand .tagline {
+            font-size: 14px;
+            color: var(--on-dark-soft);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 64px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--on-dark);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .footer-col ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .footer-col a {
+            font-size: 14px;
+            color: var(--on-dark-soft);
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: var(--on-dark);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-copyright {
+            font-size: 13px;
+            color: var(--on-dark-soft);
+        }
+
+        .footer-social {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .footer-social a {
+            color: var(--on-dark-soft);
+            transition: color 0.2s;
+        }
+
+        .footer-social a:hover {
+            color: var(--on-dark);
+        }
+
+        .footer-social svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ===== Animations ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== Responsive ===== */
+        /* Phone Mockup */
+        .phone-mockup {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--surface-card) 0%, #e8e8e8 100%);
+            border-radius: var(--rounded-xl);
+        }
+
+        .phone-frame {
+            position: relative;
+            width: 260px;
+            aspect-ratio: 9 / 19;
+            background: #1a1a1a;
+            border-radius: 40px;
+            padding: 10px;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                inset 0 0 0 2px #333,
+                inset 0 0 0 4px #1a1a1a;
+        }
+
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 22px;
+            background: #0a0a0a;
+            border-radius: 20px;
+            z-index: 10;
+        }
+
+        .phone-frame::after {
+            content: '';
+            position: absolute;
+            top: 19px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            z-index: 11;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--canvas);
+            border-radius: 32px;
+            overflow: hidden;
+        }
+
+        .phone-screen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+        }
+
+        /* Individual image positioning for better focus */
+        .feature:nth-child(1) .feature-image img { object-position: top left; }
+        .feature:nth-child(2) .feature-image img { object-position: top center; }
+        .feature:nth-child(3) .feature-image img { object-position: top center; }
+        .feature:nth-child(4) .feature-image img { object-position: center center; }
+        .feature:nth-child(5) .feature-image img { object-position: top center; }
+        .feature:nth-child(6) .feature-image img { object-position: top center; }
+        .feature:nth-child(7) .feature-image img { object-position: top center; }
+        .feature:nth-child(8) .feature-image img { object-position: top center; }
+        .feature:nth-child(9) .feature-image img { object-position: center center; }
+
+        @media (max-width: 1024px) {
+            .display-xl { font-size: 48px; }
+            .display-lg { font-size: 36px; }
+            .feature { gap: 48px; }
+            .feature-image { height: 350px; }
+            .phone-frame { width: 220px; }
+            .steps-grid { grid-template-columns: repeat(2, 1fr); gap: 48px; }
+            .footer-links { gap: 48px; }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --spacing-section: 64px;
+            }
+
+            .display-xl { font-size: 36px; letter-spacing: -1px; }
+            .display-lg { font-size: 28px; letter-spacing: -0.5px; }
+            .feature-title { font-size: 28px; }
+
+            .nav-links { display: none; }
+
+            .feature {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .feature:nth-child(even) {
+                direction: ltr;
+            }
+
+            .feature-image {
+                order: -1;
+                height: 280px;
+            }
+
+            .phone-mockup {
+                order: -1;
+                padding: 24px;
+            }
+
+            .phone-frame {
+                width: 200px;
+                border-radius: 32px;
+                padding: 8px;
+            }
+
+            .phone-frame::before {
+                width: 55px;
+                height: 18px;
+                top: 10px;
+            }
+
+            .phone-frame::after {
+                width: 8px;
+                height: 8px;
+                top: 15px;
+            }
+
+            .phone-screen {
+                border-radius: 26px;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .footer-main {
+                flex-direction: column;
+                gap: 48px;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                gap: 32px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .hero-ctas {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<!-- Navigation -->
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="nav-logo">
-      <div class="nav-flag">
-        <span class="flag-blue"></span>
-        <span class="flag-white"></span>
-        <span class="flag-red"></span>
-      </div>
-      Visa Doc Collator
-    </a>
-    <div class="nav-links">
-      <a href="#features" class="nav-link">Features</a>
-      <a href="#how-it-works" class="nav-link">How It Works</a>
-      <a href="#faq" class="nav-link">FAQ</a>
-    </div>
-    <a href="app.html" class="nav-cta">Open Tool</a>
-  </div>
-</nav>
-
-<!-- Hero Section -->
-<section class="hero">
-  <div class="hero-inner animate-on-scroll">
-    <div class="hero-badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
-      Free Forever - No Account Required
-    </div>
-    <h1>Every feature you need for a <span>stress-free visa application</span></h1>
-    <p class="hero-subtitle">
-      From smart templates to PDF merging, discover all the tools that make organizing your Schengen visa documents effortless.
-    </p>
-    <div class="hero-cta-group">
-      <a href="app.html" class="btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-        Start Organizing Now
-      </a>
-      <a href="#features" class="btn-secondary">Explore Features</a>
-    </div>
-  </div>
-</section>
-
-<!-- Feature Sections -->
-<section class="features-grid" id="features">
-
-  <!-- Feature 1: Smart Templates -->
-  <div class="feature-section animate-on-scroll">
-    <div class="feature-content">
-      <div class="feature-number">1</div>
-      <p class="feature-label">Smart Templates</p>
-      <h2 class="feature-title">Country-specific checklists based on official requirements</h2>
-      <p class="feature-description">
-        Choose your destination and instantly get a complete document checklist tailored to that country's embassy requirements. No more guessing what you need.
-      </p>
-      <ul class="feature-bullets">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Pre-loaded templates for France, Germany, Italy, Spain, Netherlands, and more
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Requirements sourced from official VFS and embassy websites
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Includes both required and optional documents
-        </li>
-      </ul>
-    </div>
-    <div class="feature-mockup">
-      <div class="mockup-frame template-mockup">
-        <div class="mockup-header">
-          <div class="mockup-dots">
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-          </div>
-          <div class="mockup-title">Select Your Destination</div>
-        </div>
-        <div class="mockup-body">
-          <div class="country-grid">
-            <div class="country-card selected">
-              <span class="flag">&#127467;&#127479;</span>
-              <div>
-                <div class="name">France</div>
-                <div class="docs">14 documents</div>
-              </div>
-              <div class="check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-            </div>
-            <div class="country-card">
-              <span class="flag">&#127465;&#127466;</span>
-              <div>
-                <div class="name">Germany</div>
-                <div class="docs">12 documents</div>
-              </div>
-              <div class="check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-            </div>
-            <div class="country-card">
-              <span class="flag">&#127470;&#127481;</span>
-              <div>
-                <div class="name">Italy</div>
-                <div class="docs">13 documents</div>
-              </div>
-              <div class="check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-            </div>
-            <div class="country-card">
-              <span class="flag">&#127466;&#127480;</span>
-              <div>
-                <div class="name">Spain</div>
-                <div class="docs">14 documents</div>
-              </div>
-              <div class="check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Feature 2: Custom List Builder -->
-  <div class="feature-section reverse animate-on-scroll">
-    <div class="feature-content">
-      <div class="feature-number">2</div>
-      <p class="feature-label">Custom List Builder</p>
-      <h2 class="feature-title">Build your own checklist or paste from embassy websites</h2>
-      <p class="feature-description">
-        Need a custom setup? Add your own document types or simply paste the requirements list directly from VFS or embassy websites.
-      </p>
-      <ul class="feature-bullets">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          "Paste from Website" parses lists automatically
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Add custom documents with one click
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Edit or delete items anytime
-        </li>
-      </ul>
-    </div>
-    <div class="feature-mockup">
-      <div class="mockup-frame custom-list-mockup">
-        <div class="mockup-header">
-          <div class="mockup-dots">
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-          </div>
-          <div class="mockup-title">Custom Checklist Builder</div>
-        </div>
-        <div class="mockup-body">
-          <div class="paste-area">
-            <div class="paste-area-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-            </div>
-            <div class="paste-area-text">
-              <strong>Paste from Website</strong><br>
-              Copy the document list from VFS or embassy site
-            </div>
-          </div>
-          <div class="custom-input-row">
-            <input type="text" class="custom-input" placeholder="Add custom document...">
-            <button class="custom-add-btn">+ Add</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Feature 3: Multi-Applicant Support -->
-  <div class="feature-section animate-on-scroll">
-    <div class="feature-content">
-      <div class="feature-number">3</div>
-      <p class="feature-label">Multi-Applicant Support</p>
-      <h2 class="feature-title">Manage documents for your whole travel group</h2>
-      <p class="feature-description">
-        Traveling with family or friends? Create separate tabs for each applicant. Everyone gets their own checklist without any document mixing.
-      </p>
-      <ul class="feature-bullets">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Unlimited travelers per session
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Rename tabs with traveler names
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Track progress per person
-        </li>
-      </ul>
-    </div>
-    <div class="feature-mockup">
-      <div class="mockup-frame tabs-mockup">
-        <div class="mockup-header">
-          <div class="mockup-dots">
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-          </div>
-          <div class="mockup-title">Multiple Travelers</div>
-        </div>
-        <div class="mockup-body">
-          <div class="mockup-tabs">
-            <div class="mockup-tab active">
-              John <span class="badge">14/14</span>
-            </div>
-            <div class="mockup-tab">
-              Sarah <span class="badge">9/14</span>
-            </div>
-            <div class="mockup-tab">
-              Kids <span class="badge">6/14</span>
-            </div>
-            <div class="mockup-tab-add">+</div>
-          </div>
-          <div class="traveler-cards">
-            <div class="traveler-card">
-              <div class="traveler-avatar">J</div>
-              <div class="traveler-info">
-                <div class="traveler-name">John</div>
-                <div class="traveler-progress">Primary applicant</div>
-              </div>
-              <div class="traveler-status complete">Complete</div>
-            </div>
-            <div class="traveler-card">
-              <div class="traveler-avatar">S</div>
-              <div class="traveler-info">
-                <div class="traveler-name">Sarah</div>
-                <div class="traveler-progress">5 documents remaining</div>
-              </div>
-              <div class="traveler-status pending">In Progress</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Feature 4: Drag & Drop Organization -->
-  <div class="feature-section reverse animate-on-scroll">
-    <div class="feature-content">
-      <div class="feature-number">4</div>
-      <p class="feature-label">Drag & Drop Organization</p>
-      <h2 class="feature-title">Reorder documents exactly how your embassy wants them</h2>
-      <p class="feature-description">
-        Different consulates prefer different orders. Drag and drop to arrange your documents exactly as required - the final PDF follows your order.
-      </p>
-      <ul class="feature-bullets">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Intuitive drag handles
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Visual feedback during reordering
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Order is saved automatically
-        </li>
-      </ul>
-    </div>
-    <div class="feature-mockup">
-      <div class="mockup-frame drag-mockup">
-        <div class="mockup-header">
-          <div class="mockup-dots">
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-          </div>
-          <div class="mockup-title">Drag to Reorder</div>
-        </div>
-        <div class="mockup-body">
-          <div class="doc-list">
-            <div class="drag-doc-card">
-              <div class="drag-handle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
-              </div>
-              <div class="doc-status-check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="doc-name">Passport Copy</div>
-              <div class="doc-order">#1</div>
-            </div>
-            <div class="drag-doc-card dragging">
-              <div class="drag-handle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
-              </div>
-              <div class="doc-status-check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="doc-name">Bank Statement</div>
-              <div class="doc-order">#2</div>
-            </div>
-            <div class="drag-doc-card drag-over">
-              <div class="drag-handle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
-              </div>
-              <div class="doc-status-empty"></div>
-              <div class="doc-name">Flight Booking</div>
-              <div class="doc-order">#3</div>
-            </div>
-            <div class="drag-doc-card">
-              <div class="drag-handle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
-              </div>
-              <div class="doc-status-check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="doc-name">Travel Insurance</div>
-              <div class="doc-order">#4</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Feature 5: Document Upload -->
-  <div class="feature-section animate-on-scroll">
-    <div class="feature-content">
-      <div class="feature-number">5</div>
-      <p class="feature-label">Document Upload</p>
-      <h2 class="feature-title">Upload PDFs and images with visual progress tracking</h2>
-      <p class="feature-description">
-        Upload your documents one by one or drag multiple files at once. Watch the progress as files are processed - all in your browser, nothing sent anywhere.
-      </p>
-      <ul class="feature-bullets">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Supports PDF, JPG, PNG, and WebP
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Drag and drop or click to browse
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Replace or remove uploads easily
-        </li>
-      </ul>
-    </div>
-    <div class="feature-mockup">
-      <div class="mockup-frame upload-mockup">
-        <div class="mockup-header">
-          <div class="mockup-dots">
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-          </div>
-          <div class="mockup-title">Upload Documents</div>
-        </div>
-        <div class="mockup-body">
-          <div class="upload-card">
-            <div class="upload-card-header">
-              <div class="doc-status-check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="upload-doc-name">Bank Statement (3 months)</div>
-            </div>
-            <div class="upload-progress">
-              <div class="upload-progress-bar" style="width: 100%"></div>
-            </div>
-            <div class="upload-file-info">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-              bank_statement_jan_mar.pdf (2.4 MB)
-            </div>
-          </div>
-          <div class="upload-card">
-            <div class="upload-card-header">
-              <div class="doc-status-empty"></div>
-              <div class="upload-doc-name">Travel Insurance Certificate</div>
-              <button class="upload-btn">Upload</button>
-            </div>
-          </div>
-          <div class="upload-card">
-            <div class="upload-card-header">
-              <div class="doc-status-empty"></div>
-              <div class="upload-doc-name">Hotel Reservation</div>
-              <button class="upload-btn">Upload</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Feature 6: PDF Preview & Merge -->
-  <div class="feature-section reverse animate-on-scroll">
-    <div class="feature-content">
-      <div class="feature-number">6</div>
-      <p class="feature-label">PDF Merging & Preview</p>
-      <h2 class="feature-title">Preview your merged PDF before downloading</h2>
-      <p class="feature-description">
-        See exactly what your final document will look like. Navigate page-by-page, jump to sections with thumbnails, and download when ready.
-      </p>
-      <ul class="feature-bullets">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Full-screen immersive preview
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Thumbnail navigation sidebar
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Section dividers with document names
-        </li>
-      </ul>
-    </div>
-    <div class="feature-mockup">
-      <div class="mockup-frame preview-mockup">
-        <div class="mockup-header" style="background: #141416; border-bottom: 1px solid rgba(255,255,255,0.1);">
-          <div class="mockup-dots">
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-          </div>
-          <div class="mockup-title" style="color: rgba(255,255,255,0.8);">PDF Preview</div>
-        </div>
-        <div class="preview-container">
-          <div class="preview-toolbar">
-            <div class="preview-nav">
-              <button class="preview-nav-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-              <span class="preview-page-info">Page 3 of 24</span>
-              <button class="preview-nav-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            </div>
-            <div class="preview-actions">
-              <button class="preview-download-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Download PDF
-              </button>
-            </div>
-          </div>
-          <div class="preview-content">
-            <div class="preview-thumbnails">
-              <div class="preview-thumb">1</div>
-              <div class="preview-thumb">2</div>
-              <div class="preview-thumb active">3</div>
-              <div class="preview-thumb">4</div>
-              <div class="preview-thumb">5</div>
-            </div>
-            <div class="preview-main">
-              <div class="preview-doc-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-              </div>
-              <div class="preview-doc-title">Bank Statement</div>
-              <div class="preview-doc-subtitle">Page 1 of 3</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Feature 7: Print Tracking -->
-  <div class="feature-section animate-on-scroll">
-    <div class="feature-content">
-      <div class="feature-number">7</div>
-      <p class="feature-label">Print Tracking</p>
-      <h2 class="feature-title">Mark documents as "Already Printed"</h2>
-      <p class="feature-description">
-        Already printed your passport copy at home? Mark it as printed. It counts as complete but gets excluded from your export - so you only print what's missing.
-      </p>
-      <ul class="feature-bullets">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Printed documents show distinct purple styling
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Automatically excluded from PDF export
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Toggle on/off anytime
-        </li>
-      </ul>
-    </div>
-    <div class="feature-mockup">
-      <div class="mockup-frame print-mockup">
-        <div class="mockup-header">
-          <div class="mockup-dots">
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-          </div>
-          <div class="mockup-title">Print Tracking</div>
-        </div>
-        <div class="mockup-body">
-          <div class="print-doc-list">
-            <div class="print-doc-card printed">
-              <div class="print-status printed">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="print-doc-info">
-                <div class="print-doc-name">Passport Copy <span class="printed-badge">Printed</span></div>
-                <div class="print-doc-file">passport_scan.pdf</div>
-              </div>
-              <button class="print-btn active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Printed
-              </button>
-            </div>
-            <div class="print-doc-card">
-              <div class="print-status uploaded">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="print-doc-info">
-                <div class="print-doc-name">Bank Statement</div>
-                <div class="print-doc-file">bank_jan_mar.pdf</div>
-              </div>
-              <button class="print-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Mark Printed
-              </button>
-            </div>
-            <div class="print-doc-card">
-              <div class="print-status uploaded">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="print-doc-info">
-                <div class="print-doc-name">Travel Insurance</div>
-                <div class="print-doc-file">insurance_certificate.pdf</div>
-              </div>
-              <button class="print-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Mark Printed
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Feature 8: Progress Dashboard -->
-  <div class="feature-section reverse animate-on-scroll">
-    <div class="feature-content">
-      <div class="feature-number">8</div>
-      <p class="feature-label">Progress Dashboard</p>
-      <h2 class="feature-title">Visual progress ring shows completion at a glance</h2>
-      <p class="feature-description">
-        Never wonder "am I done yet?" The progress ring fills up as you upload documents, giving you instant visual feedback on your completion status.
-      </p>
-      <ul class="feature-bullets">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Animated progress ring
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Separate counts for uploaded and printed
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Updates in real-time
-        </li>
-      </ul>
-    </div>
-    <div class="feature-mockup">
-      <div class="mockup-frame progress-mockup">
-        <div class="mockup-header">
-          <div class="mockup-dots">
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-            <div class="mockup-dot"></div>
-          </div>
-          <div class="mockup-title">Progress Dashboard</div>
-        </div>
-        <div class="mockup-body">
-          <div class="progress-dashboard">
-            <div class="progress-header">
-              <div class="progress-ring-large">
-                <svg viewBox="0 0 80 80" width="80" height="80">
-                  <circle class="progress-ring-bg" cx="40" cy="40" r="36"/>
-                  <circle class="progress-ring-fill" cx="40" cy="40" r="36"/>
-                </svg>
-                <div class="progress-ring-text">
-                  <div class="progress-percent">75%</div>
-                  <div class="progress-label">Complete</div>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <a href="#" class="nav-logo">
+                <div class="flag">
+                    <span class="blue"></span>
+                    <span class="white"></span>
+                    <span class="red"></span>
                 </div>
-              </div>
-              <div class="progress-stats">
-                <div class="progress-title">Great progress!</div>
-                <div class="progress-subtitle">10 of 14 documents ready</div>
-              </div>
+                <span class="brand">Visa Doc Collator</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#faq">FAQ</a>
             </div>
-            <div class="progress-breakdown">
-              <div class="progress-stat success">
-                <div class="progress-stat-value">8</div>
-                <div class="progress-stat-label">Uploaded</div>
-              </div>
-              <div class="progress-stat purple">
-                <div class="progress-stat-value">2</div>
-                <div class="progress-stat-label">Printed</div>
-              </div>
-              <div class="progress-stat">
-                <div class="progress-stat-value">4</div>
-                <div class="progress-stat-label">Remaining</div>
-              </div>
-            </div>
-          </div>
+            <a href="app.html" class="btn btn-primary">Open Tool</a>
         </div>
-      </div>
-    </div>
-  </div>
+    </nav>
 
-  <!-- Feature 9: Mobile Responsive -->
-  <div class="feature-section animate-on-scroll">
-    <div class="feature-content">
-      <div class="feature-number">9</div>
-      <p class="feature-label">Mobile Responsive</p>
-      <h2 class="feature-title">Works perfectly on any device</h2>
-      <p class="feature-description">
-        Start on your laptop, continue on your phone. The app adapts beautifully to any screen size, so you can manage your documents from anywhere.
-      </p>
-      <ul class="feature-bullets">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Touch-friendly interface
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Works on phone, tablet, and desktop
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Install as PWA for offline use
-        </li>
-      </ul>
-    </div>
-    <div class="feature-mockup">
-      <div class="mobile-mockup">
-        <div class="phone-frame small">
-          <div class="phone-screen">
-            <div class="phone-header">
-              <div class="phone-notch"></div>
-              <div class="phone-title">Sarah's Docs</div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                Free Forever - No Account Required
             </div>
-            <div class="phone-body">
-              <div class="phone-doc-card">
-                <div class="phone-doc-status">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            <h1 class="display-xl">Every feature you need for a stress-free visa application</h1>
+            <p class="hero-subtitle">From smart templates to PDF merging, discover all the tools that make organizing your Schengen visa documents effortless.</p>
+            <div class="hero-ctas">
+                <a href="app.html" class="btn btn-primary">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Start Organizing Now
+                </a>
+                <a href="#features" class="btn btn-secondary">Explore Features</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <!-- Feature 1: Smart Templates -->
+            <div class="feature animate-on-scroll">
+                <div class="feature-content">
+                    <div class="feature-number">1</div>
+                    <span class="label">Smart Templates</span>
+                    <h2 class="feature-title">Country-specific checklists based on official requirements</h2>
+                    <p class="feature-desc">Choose your destination and instantly get a complete document checklist tailored to that country's embassy requirements. No more guessing what you need.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Pre-loaded templates for France, Germany, Italy, Spain, Netherlands, and more</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Requirements sourced from official VFS and embassy websites</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Includes both required and optional documents</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="phone-doc-name">Passport</div>
-              </div>
-              <div class="phone-doc-card">
-                <div class="phone-doc-status">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="feature-image">
+                    <img src="Appscreens/Feature- Smart Templates.jpg" alt="Smart Templates Feature">
                 </div>
-                <div class="phone-doc-name">Bank Statement</div>
-              </div>
-              <div class="phone-doc-card">
-                <div class="phone-doc-status empty"></div>
-                <div class="phone-doc-name">Insurance</div>
-              </div>
             </div>
-          </div>
-        </div>
-        <div class="phone-frame">
-          <div class="phone-screen">
-            <div class="phone-header">
-              <div class="phone-notch"></div>
-              <div class="phone-title">Visa Doc Collator</div>
+
+            <!-- Feature 2: Custom List Builder -->
+            <div class="feature animate-on-scroll">
+                <div class="feature-content">
+                    <div class="feature-number">2</div>
+                    <span class="label">Custom List Builder</span>
+                    <h2 class="feature-title">Build your own document list from scratch</h2>
+                    <p class="feature-desc">Have a specific list from your travel agent or visa service? Simply paste it in and we'll organize it for you automatically.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Paste any list format - we'll parse it automatically</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Edit, reorder, and customize your list anytime</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Mix with template items for a complete checklist</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-image">
+                    <img src="Appscreens/Feature- Custom List Builder.jpg" alt="Custom List Builder Feature">
+                </div>
             </div>
-            <div class="phone-body">
-              <div class="phone-doc-card">
-                <div class="phone-doc-status">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+
+            <!-- Feature 3: Multi-Applicant Support -->
+            <div class="feature animate-on-scroll">
+                <div class="feature-content">
+                    <div class="feature-number">3</div>
+                    <span class="label">Multi-Applicant Support</span>
+                    <h2 class="feature-title">Organize documents for everyone traveling together</h2>
+                    <p class="feature-desc">Managing visa applications for your whole family? Create separate document lists for each person while keeping everything organized in one place.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Add unlimited applicants with individual checklists</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Color-coded tabs for easy identification</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Track progress per person at a glance</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="phone-doc-name">Passport Copy</div>
-              </div>
-              <div class="phone-doc-card">
-                <div class="phone-doc-status">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="feature-image">
+                    <img src="Appscreens/Feature- Multi-Applicant Support.jpg" alt="Multi-Applicant Support Feature">
                 </div>
-                <div class="phone-doc-name">Passport Photos</div>
-              </div>
-              <div class="phone-doc-card">
-                <div class="phone-doc-status">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                </div>
-                <div class="phone-doc-name">Bank Statement</div>
-              </div>
-              <div class="phone-doc-card">
-                <div class="phone-doc-status empty"></div>
-                <div class="phone-doc-name">Travel Insurance</div>
-              </div>
-              <div class="phone-doc-card">
-                <div class="phone-doc-status empty"></div>
-                <div class="phone-doc-name">Flight Booking</div>
-              </div>
             </div>
-          </div>
+
+            <!-- Feature 4: Drag & Drop Organization -->
+            <div class="feature animate-on-scroll">
+                <div class="feature-content">
+                    <div class="feature-number">4</div>
+                    <span class="label">Drag & Drop Organization</span>
+                    <h2 class="feature-title">Arrange documents in your preferred order</h2>
+                    <p class="feature-desc">Don't like the default order? Simply drag and drop documents to arrange them exactly how you want them in your final application packet.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Intuitive drag and drop interface</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Order is preserved when printing/merging</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Reset to recommended order anytime</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-image">
+                    <img src="Appscreens/Drag & Drop Organization.png" alt="Drag & Drop Organization Feature">
+                </div>
+            </div>
+
+            <!-- Feature 5: Document Upload -->
+            <div class="feature animate-on-scroll">
+                <div class="feature-content">
+                    <div class="feature-number">5</div>
+                    <span class="label">Document Upload</span>
+                    <h2 class="feature-title">Upload and attach files directly to each item</h2>
+                    <p class="feature-desc">Scan or photograph your documents and attach them directly to each checklist item. Visual confirmation that you have what you need.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Upload PDFs, images, or scanned documents</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Preview uploads before finalizing</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Automatic status update when document is attached</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-image">
+                    <img src="Appscreens/Feature- Document Upload.jpg" alt="Document Upload Feature">
+                </div>
+            </div>
+
+            <!-- Feature 6: PDF Merging & Preview -->
+            <div class="feature animate-on-scroll">
+                <div class="feature-content">
+                    <div class="feature-number">6</div>
+                    <span class="label">PDF Merging & Preview</span>
+                    <h2 class="feature-title">Combine all documents into a single PDF</h2>
+                    <p class="feature-desc">When you're ready, merge all your uploaded documents into a single, organized PDF file. Preview it before downloading to ensure everything is perfect.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Smart merging maintains document quality</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Preview in browser before download</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Optimized file size for email attachments</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-image">
+                    <img src="Appscreens/Feature- PDF Merging & Preview.jpg" alt="PDF Merging & Preview Feature">
+                </div>
+            </div>
+
+            <!-- Feature 7: Print Tracking -->
+            <div class="feature animate-on-scroll">
+                <div class="feature-content">
+                    <div class="feature-number">7</div>
+                    <span class="label">Print Tracking</span>
+                    <h2 class="feature-title">Track which documents you've already printed</h2>
+                    <p class="feature-desc">Keep track of what's been printed and what still needs to be printed. Mark items as printed as you go so you never lose track.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>One-click print status toggle</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Filter to see only unprinted items</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Print count summary at a glance</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-image">
+                    <img src="Appscreens/Feature- Print Tracking.jpg" alt="Print Tracking Feature">
+                </div>
+            </div>
+
+            <!-- Feature 8: Progress Dashboard -->
+            <div class="feature animate-on-scroll">
+                <div class="feature-content">
+                    <div class="feature-number">8</div>
+                    <span class="label">Progress Dashboard</span>
+                    <h2 class="feature-title">See your overall progress at a glance</h2>
+                    <p class="feature-desc">Get a bird's-eye view of your application status. See what's done, what's pending, and what still needs attention.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Visual progress indicator</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Quick stats for each category</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Per-applicant progress when traveling together</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-image">
+                    <img src="Appscreens/Feature- Progress Dashboard.jpg" alt="Progress Dashboard Feature">
+                </div>
+            </div>
+
+            <!-- Feature 9: Mobile Responsive -->
+            <div class="feature animate-on-scroll">
+                <div class="feature-content">
+                    <div class="feature-number">9</div>
+                    <span class="label">Mobile Responsive</span>
+                    <h2 class="feature-title">Works beautifully on any device</h2>
+                    <p class="feature-desc">Whether you're on your laptop at home or checking your phone while gathering documents, the tool adapts perfectly to your screen.</p>
+                    <div class="feature-bullets">
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Responsive design for all screen sizes</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Touch-friendly interface on mobile</span>
+                        </div>
+                        <div class="feature-bullet">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Full functionality across devices</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="Appscreens/Feature- Mobile Responsive.jpg" alt="Mobile Responsive Feature">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
+    </section>
 
-</section>
-
-<!-- How It Works Section -->
-<section class="how-it-works" id="how-it-works">
-  <div class="how-inner">
-    <div class="how-header animate-on-scroll">
-      <p class="section-label">How It Works</p>
-      <h2 class="section-title">Four simple steps to visa-ready documents</h2>
-      <p class="section-subtitle">From scattered files to a single print-ready PDF in minutes</p>
-    </div>
-    <div class="steps-grid">
-      <div class="step-card animate-on-scroll">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-          <div class="step-number-badge">1</div>
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <span class="label">How It Works</span>
+                <h2 class="display-lg">Four simple steps to organized documents</h2>
+                <p>From chaos to order in minutes, not hours</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step animate-on-scroll">
+                    <div class="step-number">1</div>
+                    <h3>Choose Your Template</h3>
+                    <p>Select your destination country or paste your own checklist</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <div class="step-number">2</div>
+                    <h3>Upload Documents</h3>
+                    <p>Attach scans or photos to each item on your checklist</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <div class="step-number">3</div>
+                    <h3>Organize & Review</h3>
+                    <p>Drag to reorder, check your progress, track what's printed</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <div class="step-number">4</div>
+                    <h3>Download & Submit</h3>
+                    <p>Merge into one PDF and you're ready for your appointment</p>
+                </div>
+            </div>
         </div>
-        <h3 class="step-title">Add Travelers</h3>
-        <p class="step-description">Create tabs for yourself and anyone traveling with you. Each person gets their own checklist.</p>
-      </div>
-      <div class="step-card animate-on-scroll">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <div class="step-number-badge">2</div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="label">FAQ</span>
+                <h2 class="display-lg">Frequently Asked Questions</h2>
+            </div>
+            <div class="faq-grid">
+                <div class="faq-item animate-on-scroll">
+                    <h3 class="faq-question">Is this tool really free?</h3>
+                    <p class="faq-answer">Yes, completely free! No account required, no hidden fees, no premium tiers. We built this to help travelers organize their visa applications without the stress.</p>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <h3 class="faq-question">Do you store my documents?</h3>
+                    <p class="faq-answer">No. All processing happens in your browser. Your documents never leave your device unless you choose to download the merged PDF.</p>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <h3 class="faq-question">Which countries are supported?</h3>
+                    <p class="faq-answer">We have templates for all 27 Schengen countries. You can also create custom lists for any destination.</p>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <h3 class="faq-question">Can I use this on my phone?</h3>
+                    <p class="faq-answer">Absolutely! The tool is fully responsive and works great on phones and tablets. Perfect for checking off items on the go.</p>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <h3 class="faq-question">How accurate are the document requirements?</h3>
+                    <p class="faq-answer">Our templates are based on official VFS and embassy websites. However, requirements can change, so always verify with the official source before your appointment.</p>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <h3 class="faq-question">What file formats can I upload?</h3>
+                    <p class="faq-answer">You can upload PDFs, JPEGs, PNGs, and most common image formats. We'll handle the conversion and merging for you.</p>
+                </div>
+            </div>
         </div>
-        <h3 class="step-title">Upload Documents</h3>
-        <p class="step-description">Go through the checklist and upload each document. PDFs and images both work perfectly.</p>
-      </div>
-      <div class="step-card animate-on-scroll">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
-          <div class="step-number-badge">3</div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="display-lg">Ready to organize your visa documents?</h2>
+            <p>Start using our free tool now. No account needed, no strings attached.</p>
+            <div class="cta-buttons">
+                <a href="app.html" class="btn btn-white">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Start Organizing Now
+                </a>
+                <a href="#features" class="btn btn-outline-white">Learn More</a>
+            </div>
         </div>
-        <h3 class="step-title">Organize Order</h3>
-        <p class="step-description">Drag to reorder documents. Mark any you've already printed to exclude from export.</p>
-      </div>
-      <div class="step-card animate-on-scroll">
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <div class="step-number-badge">4</div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <a href="#" class="nav-logo">
+                        <div class="flag">
+                            <span class="blue"></span>
+                            <span class="white"></span>
+                            <span class="red"></span>
+                        </div>
+                        <span class="brand">Visa Doc Collator</span>
+                    </a>
+                    <p class="tagline">Simplifying Schengen visa applications</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>Product</h4>
+                        <ul>
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#how-it-works">How It Works</a></li>
+                            <li><a href="#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Resources</h4>
+                        <ul>
+                            <li><a href="#">Templates</a></li>
+                            <li><a href="#">Guide</a></li>
+                            <li><a href="#">Support</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Privacy</a></li>
+                            <li><a href="#">Terms</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-copyright">&copy; 2024 Visa Doc Collator. Made with love for travelers.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Twitter">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path></svg>
+                    </a>
+                    <a href="#" aria-label="GitHub">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"></path></svg>
+                    </a>
+                </div>
+            </div>
         </div>
-        <h3 class="step-title">Export & Print</h3>
-        <p class="step-description">Download your merged PDF. Take it to any print shop and you're ready for your appointment.</p>
-      </div>
-    </div>
-  </div>
-</section>
+    </footer>
 
-<!-- FAQ Section -->
-<section class="faq" id="faq">
-  <div class="faq-inner">
-    <div class="faq-header animate-on-scroll">
-      <h2 class="section-title">Frequently Asked Questions</h2>
-    </div>
-    <div class="faq-grid">
-      <div class="faq-item open animate-on-scroll">
-        <button class="faq-question">
-          Is this tool really free?
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer">
-          Yes, completely free. There's no catch, no premium tier, and no data collection. The tool runs entirely in your browser - we don't even have servers to charge you for.
-        </div>
-      </div>
-      <div class="faq-item animate-on-scroll">
-        <button class="faq-question">
-          Are my documents safe and private?
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer">
-          Absolutely. Your documents never leave your device. The tool uses pdf-lib to merge PDFs entirely in your browser. There are no uploads, no accounts, and no tracking. You can even use the tool offline after loading it once.
-        </div>
-      </div>
-      <div class="faq-item animate-on-scroll">
-        <button class="faq-question">
-          What file formats are supported?
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer">
-          You can upload PDFs, JPGs, PNGs, and WebP images. All formats are merged into a single A4 PDF for printing. Images are automatically scaled to fit the page properly.
-        </div>
-      </div>
-      <div class="faq-item animate-on-scroll">
-        <button class="faq-question">
-          Can I use this for multiple people traveling together?
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer">
-          Yes! That's one of the main features. Click the + button to add tabs for each traveler. Each person gets their own checklist. You can export PDFs individually or combine everyone into one document.
-        </div>
-      </div>
-      <div class="faq-item animate-on-scroll">
-        <button class="faq-question">
-          What happens if I close my browser?
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer">
-          Your progress is automatically saved in your browser's local storage. When you return, everything will be exactly as you left it - your travelers, documents, and organization.
-        </div>
-      </div>
-      <div class="faq-item animate-on-scroll">
-        <button class="faq-question">
-          Does the "Printed" feature exclude documents from export?
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer">
-          Yes. When you mark a document as "Printed," it counts as complete in your progress tracker but won't be included in the PDF export. This way, you only print what's missing.
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+    <!-- Scroll Animation Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
 
-<!-- CTA Section -->
-<section class="cta">
-  <div class="cta-inner animate-on-scroll">
-    <div class="cta-flag">
-      <span class="flag-blue"></span>
-      <span class="flag-white"></span>
-      <span class="flag-red"></span>
-    </div>
-    <h2 class="cta-title">Ready to organize your visa documents?</h2>
-    <p class="cta-subtitle">Stop stressing about missing documents. Start your application with confidence.</p>
-    <a href="app.html" class="cta-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-      Start Organizing - It's Free
-    </a>
-    <div class="cta-proof">
-      <div class="cta-proof-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        No signup required
-      </div>
-      <div class="cta-proof-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        100% private - nothing uploaded
-      </div>
-      <div class="cta-proof-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        Works offline
-      </div>
-    </div>
-  </div>
-</section>
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
 
-<!-- Footer -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-links">
-      <a href="app.html">Open Tool</a>
-      <a href="index.html">Home</a>
-      <a href="#features">Features</a>
-      <a href="#how-it-works">How It Works</a>
-      <a href="#faq">FAQ</a>
-    </div>
-    <p>Made with care for travelers everywhere. No data collected, ever.</p>
-  </div>
-</footer>
-
-<script>
-  // Navigation scroll effect
-  const nav = document.querySelector('.nav');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      nav.classList.add('scrolled');
-    } else {
-      nav.classList.remove('scrolled');
-    }
-  });
-
-  // FAQ toggle
-  document.querySelectorAll('.faq-question').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.parentElement;
-      const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!wasOpen) item.classList.add('open');
-    });
-  });
-
-  // Smooth scroll
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
-
-  // Scroll animations
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll('.animate-on-scroll').forEach(el => {
-    observer.observe(el);
-  });
-
-  // Add visible class to elements already in view on load
-  setTimeout(() => {
-    document.querySelectorAll('.animate-on-scroll').forEach(el => {
-      const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight) {
-        el.classList.add('visible');
-      }
-    });
-  }, 100);
-</script>
-
+            document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
 </body>
 </html>

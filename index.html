@@ -1,1041 +1,1322 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schengen Visa Document Collator — Free Tool to Organize Your Visa Documents</title>
-  <meta name="description" content="Free tool to organize and merge all your Schengen visa documents into a single print-ready PDF. Supports multiple travelers, drag-to-reorder, and works 100% offline.">
-  <meta name="keywords" content="Schengen visa, document checklist, visa application, PDF merge, France visa, Germany visa, travel documents">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Schengen Visa Document Collator — Free Organizing Tool">
-  <meta property="og:description" content="Stop losing track of your visa documents. Organize, reorder, and export everything as a single print-ready PDF.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://visa-doc-collator.vercel.app">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Schengen Visa Document Collator">
-  <meta name="twitter:description" content="Free tool to organize all your Schengen visa documents into one print-ready PDF.">
-
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Schengen Visa Document Collator",
-    "description": "Free tool to organize and merge Schengen visa documents into a print-ready PDF",
-    "applicationCategory": "UtilityApplication",
-    "operatingSystem": "Any",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    }
-  }
-  </script>
-
-  <link href="https://fonts.cdnfonts.com/css/switzer" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="apple-touch-icon" href="icon-192.png">
-
-  <style>
-    :root {
-      --bg: #F6F4F0;
-      --surface: #FFFFFF;
-      --surface-alt: #EDE9E3;
-      --border: #D6D0C6;
-      --border-light: #E8E3DB;
-      --text: #1A1612;
-      --text-muted: #7A7267;
-      --text-light: #A69D91;
-      --accent: #1B4B6B;
-      --accent-light: #E8F0F6;
-      --accent-hover: #153D58;
-      --success: #2D6A4F;
-      --success-bg: #E8F5ED;
-      --warning: #B45309;
-      --warning-bg: #FEF3C7;
-      --danger: #9B2C2C;
-      --danger-bg: #FEE2E2;
-      --shadow-sm: 0 1px 2px rgba(26,22,18,0.06);
-      --shadow-md: 0 4px 12px rgba(26,22,18,0.08);
-      --shadow-lg: 0 8px 30px rgba(26,22,18,0.12);
-      --shadow-xl: 0 20px 50px rgba(26,22,18,0.15);
-      --radius: 12px;
-      --radius-lg: 20px;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Switzer', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    /* Navigation */
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      padding: 16px 24px;
-      background: rgba(246,244,240,0.9);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    .nav-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      font-size: 15px;
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    .nav-flag {
-      display: flex;
-      gap: 2px;
-    }
-
-    .nav-flag span {
-      width: 3px;
-      height: 16px;
-      border-radius: 1px;
-    }
-
-    .flag-blue { background: #002395; }
-    .flag-white { background: #FFFFFF; border: 1px solid #eee; }
-    .flag-red { background: #ED2939; }
-
-    .nav-cta {
-      padding: 10px 20px;
-      font-size: 14px;
-      font-weight: 600;
-      font-family: inherit;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .nav-cta:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-    }
-
-    /* Hero */
-    .hero {
-      padding: 140px 24px 80px;
-      text-align: center;
-      background: linear-gradient(180deg, var(--bg) 0%, white 100%);
-    }
-
-    .hero-inner {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      background: var(--success-bg);
-      color: var(--success);
-      font-size: 13px;
-      font-weight: 500;
-      border-radius: 20px;
-      margin-bottom: 24px;
-    }
-
-    .hero-badge svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .hero h1 {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-size: clamp(36px, 6vw, 56px);
-      font-weight: 400;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 20px;
-      color: var(--text);
-    }
-
-    .hero h1 span {
-      color: var(--accent);
-    }
-
-    .hero-subtitle {
-      font-size: 18px;
-      color: var(--text-muted);
-      max-width: 560px;
-      margin: 0 auto 36px;
-      line-height: 1.7;
-    }
-
-    .hero-cta-group {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 48px;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 16px 32px;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: inherit;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-      box-shadow: var(--shadow-md);
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .btn-primary svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 16px 28px;
-      font-size: 16px;
-      font-weight: 500;
-      font-family: inherit;
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .btn-secondary:hover {
-      background: var(--surface);
-      color: var(--text);
-      border-color: var(--border);
-    }
-
-    .hero-proof {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    .hero-proof-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .hero-proof-item svg {
-      width: 18px;
-      height: 18px;
-      color: var(--success);
-    }
-
-    /* Problem Section */
-    .problem {
-      padding: 80px 24px;
-      background: white;
-    }
-
-    .problem-inner {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .section-label {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-
-    .section-title {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-size: clamp(28px, 4vw, 40px);
-      font-weight: 400;
-      line-height: 1.2;
-      margin-bottom: 16px;
-    }
-
-    .section-subtitle {
-      font-size: 17px;
-      color: var(--text-muted);
-      max-width: 600px;
-      margin-bottom: 48px;
-    }
-
-    .problem-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .problem-card {
-      background: var(--bg);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      padding: 28px;
-    }
-
-    .problem-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--warning-bg);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-
-    .problem-icon svg {
-      width: 24px;
-      height: 24px;
-      color: var(--warning);
-    }
-
-    .problem-card h3 {
-      font-size: 17px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .problem-card p {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-
-    /* Solution Section */
-    .solution {
-      padding: 80px 24px;
-      background: var(--accent);
-      color: white;
-    }
-
-    .solution-inner {
-      max-width: 1000px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .solution .section-label {
-      color: rgba(255,255,255,0.6);
-    }
-
-    .solution .section-title {
-      color: white;
-      margin-bottom: 24px;
-    }
-
-    .solution-subtitle {
-      font-size: 18px;
-      opacity: 0.8;
-      max-width: 600px;
-      margin: 0 auto 48px;
-    }
-
-    .solution-features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 32px;
-      text-align: left;
-    }
-
-    .solution-feature {
-      display: flex;
-      gap: 14px;
-    }
-
-    .solution-feature-icon {
-      width: 32px;
-      height: 32px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .solution-feature-icon svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .solution-feature h4 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .solution-feature p {
-      font-size: 13px;
-      opacity: 0.7;
-      line-height: 1.5;
-    }
-
-    /* How It Works */
-    .how-it-works {
-      padding: 80px 24px;
-      background: white;
-    }
-
-    .how-inner {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .how-it-works .section-title {
-      text-align: center;
-      margin-bottom: 56px;
-    }
-
-    .steps {
-      display: flex;
-      flex-direction: column;
-      gap: 48px;
-    }
-
-    .step {
-      display: flex;
-      gap: 32px;
-      align-items: flex-start;
-    }
-
-    .step-number {
-      width: 56px;
-      height: 56px;
-      background: var(--accent-light);
-      color: var(--accent);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Instrument Serif', serif;
-      font-size: 24px;
-      flex-shrink: 0;
-    }
-
-    .step-content h3 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .step-content p {
-      font-size: 15px;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-
-    /* Stats */
-    .stats {
-      padding: 60px 24px;
-      background: var(--bg);
-      border-top: 1px solid var(--border-light);
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    .stats-inner {
-      max-width: 900px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 40px;
-      text-align: center;
-    }
-
-    .stat-value {
-      font-family: 'Instrument Serif', serif;
-      font-size: 42px;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    /* Countries */
-    .countries {
-      padding: 80px 24px;
-      background: white;
-    }
-
-    .countries-inner {
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .countries .section-title {
-      margin-bottom: 40px;
-    }
-
-    .country-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .country-tag {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
-      background: var(--surface);
-      border: 1px solid var(--border-light);
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .country-tag:hover {
-      border-color: var(--accent);
-      background: var(--accent-light);
-    }
-
-    .country-flag {
-      font-size: 20px;
-    }
-
-    .countries-note {
-      font-size: 14px;
-      color: var(--text-light);
-    }
-
-    /* FAQ */
-    .faq {
-      padding: 80px 24px;
-      background: var(--bg);
-    }
-
-    .faq-inner {
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .faq .section-title {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .faq-item {
-      background: white;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius);
-      margin-bottom: 12px;
-      overflow: hidden;
-    }
-
-    .faq-question {
-      width: 100%;
-      padding: 20px 24px;
-      font-size: 15px;
-      font-weight: 600;
-      font-family: inherit;
-      text-align: left;
-      background: none;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .faq-question:hover {
-      background: var(--surface-alt);
-    }
-
-    .faq-question svg {
-      width: 20px;
-      height: 20px;
-      color: var(--text-light);
-      transition: transform 0.2s;
-      flex-shrink: 0;
-    }
-
-    .faq-item.open .faq-question svg {
-      transform: rotate(180deg);
-    }
-
-    .faq-answer {
-      display: none;
-      padding: 0 24px 20px;
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-
-    .faq-item.open .faq-answer {
-      display: block;
-    }
-
-    /* CTA Section */
-    .cta {
-      padding: 100px 24px;
-      background: linear-gradient(180deg, white 0%, var(--accent-light) 100%);
-      text-align: center;
-    }
-
-    .cta-inner {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .cta .section-title {
-      margin-bottom: 16px;
-    }
-
-    .cta-subtitle {
-      font-size: 17px;
-      color: var(--text-muted);
-      margin-bottom: 32px;
-    }
-
-    /* Footer */
-    .footer {
-      padding: 40px 24px;
-      background: var(--text);
-      color: rgba(255,255,255,0.6);
-      text-align: center;
-      font-size: 14px;
-    }
-
-    .footer a {
-      color: white;
-      text-decoration: none;
-    }
-
-    .footer a:hover {
-      text-decoration: underline;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-bottom: 16px;
-    }
-
-    /* Responsive */
-    @media (max-width: 640px) {
-      .hero {
-        padding: 120px 20px 60px;
-      }
-
-      .step {
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .hero-proof {
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .solution-features {
-        grid-template-columns: 1fr;
-      }
-
-      .stats-inner {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schengen Visa Document Collator — Free Tool to Organize Your Visa Documents</title>
+    <meta name="description" content="Free tool to organize and merge all your Schengen visa documents into a single print-ready PDF. Supports multiple travelers, drag-to-reorder, and works 100% offline.">
+    <meta name="keywords" content="Schengen visa, document checklist, visa application, PDF merge, France visa, Germany visa, travel documents">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Schengen Visa Document Collator — Free Organizing Tool">
+    <meta property="og:description" content="Stop losing track of your visa documents. Organize, reorder, and export everything as a single print-ready PDF.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://visa-doc-collator.vercel.app">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Schengen Visa Document Collator">
+    <meta name="twitter:description" content="Free tool to organize all your Schengen visa documents into one print-ready PDF.">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Schengen Visa Document Collator",
+        "description": "Free tool to organize and merge Schengen visa documents into a print-ready PDF",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <style>
+        /* ===== Cal.com Design System Tokens ===== */
+        :root {
+            /* Colors */
+            --primary: #111111;
+            --primary-active: #242424;
+            --ink: #111111;
+            --body: #374151;
+            --muted: #6b7280;
+            --muted-soft: #898989;
+            --hairline: #e5e7eb;
+            --hairline-soft: #f3f4f6;
+            --canvas: #ffffff;
+            --surface-soft: #f8f9fa;
+            --surface-card: #f5f5f5;
+            --surface-dark: #101010;
+            --on-primary: #ffffff;
+            --on-dark: #ffffff;
+            --on-dark-soft: #a1a1aa;
+            --success: #10b981;
+            --success-soft: #d1fae5;
+            --warning: #f59e0b;
+            --warning-soft: #fef3c7;
+            --error: #ef4444;
+
+            /* Spacing */
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 48px;
+            --spacing-section: 96px;
+
+            /* Border Radius */
+            --rounded-sm: 6px;
+            --rounded-md: 8px;
+            --rounded-lg: 12px;
+            --rounded-xl: 16px;
+            --rounded-pill: 9999px;
+        }
+
+        /* ===== Reset & Base ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--body);
+            background-color: var(--canvas);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ===== Typography ===== */
+        .display-xl {
+            font-size: 64px;
+            font-weight: 600;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            color: var(--ink);
+        }
+
+        .display-lg {
+            font-size: 48px;
+            font-weight: 600;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            color: var(--ink);
+        }
+
+        .display-md {
+            font-size: 36px;
+            font-weight: 600;
+            line-height: 1.15;
+            letter-spacing: -1px;
+            color: var(--ink);
+        }
+
+        .display-sm {
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            color: var(--ink);
+        }
+
+        .title-lg {
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.3;
+            letter-spacing: -0.3px;
+            color: var(--ink);
+        }
+
+        .title-md {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--ink);
+        }
+
+        .body-lg {
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 1.7;
+            color: var(--body);
+        }
+
+        .body-md {
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--body);
+        }
+
+        .body-sm {
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.5;
+            color: var(--muted);
+        }
+
+        .label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--primary);
+        }
+
+        /* ===== Layout ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+
+        /* ===== Navigation ===== */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--canvas);
+            border-bottom: 1px solid var(--hairline-soft);
+            height: 64px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo .flag {
+            display: flex;
+            gap: 2px;
+        }
+
+        .nav-logo .flag span {
+            width: 4px;
+            height: 18px;
+            border-radius: 1px;
+        }
+
+        .nav-logo .flag .blue { background: #002395; }
+        .nav-logo .flag .white { background: var(--canvas); border: 1px solid var(--hairline); }
+        .nav-logo .flag .red { background: #ED2939; }
+
+        .nav-logo span.brand {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xl);
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--muted);
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--ink);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--rounded-md);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--on-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-active);
+        }
+
+        .btn-secondary {
+            background: var(--canvas);
+            color: var(--ink);
+            border: 1px solid var(--hairline);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--muted);
+        }
+
+        .btn-white {
+            background: var(--on-primary);
+            color: var(--primary);
+        }
+
+        .btn-outline-white {
+            background: transparent;
+            color: var(--on-primary);
+            border: 1px solid var(--on-primary);
+        }
+
+        .btn-lg {
+            padding: 18px 36px;
+            font-size: 16px;
+            border-radius: var(--rounded-lg);
+        }
+
+        /* ===== Hero Section ===== */
+        .hero {
+            padding: 120px 0 var(--spacing-section);
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--success);
+            color: var(--on-primary);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: var(--rounded-pill);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .hero-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .hero h1 {
+            max-width: 900px;
+            margin: 0 auto var(--spacing-lg);
+        }
+
+        .hero h1 .highlight {
+            color: var(--success);
+        }
+
+        .hero-subtitle {
+            max-width: 700px;
+            margin: 0 auto var(--spacing-xl);
+            font-size: 18px;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .hero-ctas {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-xxl);
+        }
+
+        .hero-proof {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-xl);
+            flex-wrap: wrap;
+        }
+
+        .hero-proof-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .hero-proof-item svg {
+            width: 18px;
+            height: 18px;
+            color: var(--success);
+        }
+
+        /* ===== Problem Section ===== */
+        .problem-section {
+            padding: var(--spacing-section) 0;
+            background: var(--surface-card);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-header .label {
+            margin-bottom: var(--spacing-md);
+            display: block;
+        }
+
+        .section-header h2 {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: var(--muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+        }
+
+        .problem-card {
+            background: var(--canvas);
+            border-radius: var(--rounded-lg);
+            padding: var(--spacing-xl);
+            border: 1px solid var(--hairline-soft);
+        }
+
+        .problem-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--warning-soft);
+            border-radius: var(--rounded-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .problem-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--warning);
+        }
+
+        .problem-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .problem-card p {
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ===== Solution Section ===== */
+        .solution-section {
+            padding: var(--spacing-section) 0;
+            background: var(--primary);
+            color: var(--on-primary);
+        }
+
+        .solution-section .section-header .label {
+            color: var(--on-dark-soft);
+        }
+
+        .solution-section .section-header h2 {
+            color: var(--on-primary);
+        }
+
+        .solution-section .section-header p {
+            color: var(--on-dark-soft);
+        }
+
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-xl);
+        }
+
+        .solution-item {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .solution-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--rounded-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .solution-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .solution-item h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .solution-item p {
+            font-size: 14px;
+            color: var(--on-dark-soft);
+            line-height: 1.6;
+        }
+
+        /* ===== How It Works Section ===== */
+        .how-it-works {
+            padding: var(--spacing-section) 0;
+        }
+
+        .steps-list {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xxl);
+        }
+
+        .step {
+            display: flex;
+            gap: var(--spacing-xl);
+            align-items: flex-start;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            color: var(--on-primary);
+            font-size: 24px;
+            font-weight: 600;
+            border-radius: var(--rounded-pill);
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .step-content p {
+            font-size: 16px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* ===== Stats Section ===== */
+        .stats-section {
+            padding: 64px 0;
+            background: var(--surface-card);
+            border-top: 1px solid var(--hairline-soft);
+            border-bottom: 1px solid var(--hairline-soft);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 600;
+            color: var(--ink);
+            letter-spacing: -1px;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* ===== Countries Section ===== */
+        .countries-section {
+            padding: var(--spacing-section) 0;
+        }
+
+        .countries-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .country-tag {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: var(--surface-card);
+            border-radius: var(--rounded-pill);
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--ink);
+            transition: all 0.2s;
+        }
+
+        .country-tag:hover {
+            background: var(--hairline-soft);
+        }
+
+        .country-flag {
+            font-size: 20px;
+        }
+
+        .countries-note {
+            text-align: center;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* ===== FAQ Section ===== */
+        .faq-section {
+            padding: var(--spacing-section) 0;
+            background: var(--surface-card);
+        }
+
+        .faq-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--canvas);
+            border-radius: var(--rounded-lg);
+            overflow: hidden;
+            border: 1px solid var(--hairline-soft);
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: var(--spacing-lg);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            text-align: left;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--spacing-md);
+            color: var(--ink);
+            transition: background 0.2s;
+        }
+
+        .faq-question:hover {
+            background: var(--surface-soft);
+        }
+
+        .faq-question svg {
+            width: 20px;
+            height: 20px;
+            color: var(--muted);
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .faq-item.open .faq-question svg {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 0 var(--spacing-lg) var(--spacing-lg);
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        /* ===== CTA Section ===== */
+        .cta-section {
+            padding: var(--spacing-section) 0;
+            background: var(--primary);
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            color: var(--on-primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .cta-section p {
+            color: var(--on-primary);
+            opacity: 0.9;
+            font-size: 18px;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            background: var(--surface-dark);
+            padding: 64px 0;
+        }
+
+        .footer-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-xxl);
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .footer-brand .nav-logo span.brand {
+            color: var(--on-dark);
+        }
+
+        .footer-brand .tagline {
+            font-size: 14px;
+            color: var(--on-dark-soft);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 64px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--on-dark);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .footer-col ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .footer-col a {
+            font-size: 14px;
+            color: var(--on-dark-soft);
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: var(--on-dark);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-copyright {
+            font-size: 13px;
+            color: var(--on-dark-soft);
+        }
+
+        .footer-social {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .footer-social a {
+            color: var(--on-dark-soft);
+            transition: color 0.2s;
+        }
+
+        .footer-social a:hover {
+            color: var(--on-dark);
+        }
+
+        .footer-social svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ===== Animations ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 1024px) {
+            .display-xl { font-size: 48px; }
+            .display-lg { font-size: 36px; }
+            .problem-grid { grid-template-columns: 1fr; }
+            .solution-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--spacing-xxl); }
+            .footer-links { gap: 48px; }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --spacing-section: 64px;
+            }
+
+            .display-xl { font-size: 36px; letter-spacing: -1px; }
+            .display-lg { font-size: 28px; letter-spacing: -0.5px; }
+
+            .nav-links { display: none; }
+
+            .hero {
+                padding: 100px 0 var(--spacing-section);
+            }
+
+            .hero-ctas {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero-proof {
+                flex-direction: column;
+                gap: var(--spacing-md);
+            }
+
+            .solution-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                flex-direction: column;
+                gap: var(--spacing-md);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-xl);
+            }
+
+            .footer-main {
+                flex-direction: column;
+                gap: 48px;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                gap: 32px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<!-- Navigation -->
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo">
-      <div class="nav-flag">
-        <span class="flag-blue"></span>
-        <span class="flag-white"></span>
-        <span class="flag-red"></span>
-      </div>
-      Visa Doc Collator
-    </a>
-    <a href="app.html" class="nav-cta">Open Tool</a>
-  </div>
-</nav>
-
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      100% Private — Nothing leaves your browser
-    </div>
-    <h1>Stop losing track of your <span>Schengen visa documents</span></h1>
-    <p class="hero-subtitle">
-      Upload all your supporting documents, organize them per traveler, and export a single print-ready PDF. Free forever, works offline.
-    </p>
-    <div class="hero-cta-group">
-      <a href="app.html" class="btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-        Start Organizing — It's Free
-      </a>
-      <a href="#how-it-works" class="btn-secondary">See how it works</a>
-    </div>
-    <div class="hero-proof">
-      <div class="hero-proof-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        No signup required
-      </div>
-      <div class="hero-proof-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        Works offline
-      </div>
-      <div class="hero-proof-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        Multiple travelers
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Problem -->
-<section class="problem">
-  <div class="problem-inner">
-    <p class="section-label">The Problem</p>
-    <h2 class="section-title">Visa applications are document nightmares</h2>
-    <p class="section-subtitle">Incomplete documents are the #1 reason for Schengen visa rejections. Don't let disorganization cost you your trip.</p>
-
-    <div class="problem-grid">
-      <div class="problem-card">
-        <div class="problem-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <a href="#" class="nav-logo">
+                <div class="flag">
+                    <span class="blue"></span>
+                    <span class="white"></span>
+                    <span class="red"></span>
+                </div>
+                <span class="brand">Visa Doc Collator</span>
+            </a>
+            <div class="nav-links">
+                <a href="features.html">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#faq">FAQ</a>
+            </div>
+            <a href="app.html" class="btn btn-primary">Open Tool</a>
         </div>
-        <h3>Scattered files everywhere</h3>
-        <p>Bank statements from email, insurance from another site, flight PDF from the airline — your Downloads folder is chaos.</p>
-      </div>
-      <div class="problem-card">
-        <div class="problem-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <h3>Multiply by travelers</h3>
-        <p>Applying with your partner or family? Now you have 2x or 3x the documents to track — with no way to keep them separate.</p>
-      </div>
-      <div class="problem-card">
-        <div class="problem-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        </div>
-        <h3>"Did I forget something?"</h3>
-        <p>No clear checklist, no progress tracking. You're never quite sure if you have everything until you're at the VFS counter.</p>
-      </div>
-    </div>
-  </div>
-</section>
+    </nav>
 
-<!-- Solution -->
-<section class="solution">
-  <div class="solution-inner">
-    <p class="section-label">The Solution</p>
-    <h2 class="section-title">One tool to organize it all</h2>
-    <p class="solution-subtitle">A purpose-built staging area for your visa documents. Upload, organize, export — then walk into the print shop with confidence.</p>
-
-    <div class="solution-features">
-      <div class="solution-feature">
-        <div class="solution-feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                100% Private — Nothing Leaves Your Browser
+            </div>
+            <h1 class="display-xl">Stop losing track of your <span class="highlight">Schengen visa documents</span></h1>
+            <p class="hero-subtitle">Upload all your supporting documents, organize them per traveler, and export a single print-ready PDF. Free forever, works offline.</p>
+            <div class="hero-ctas">
+                <a href="app.html" class="btn btn-primary btn-lg">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Start Organizing — It's Free
+                </a>
+                <a href="#how-it-works" class="btn btn-secondary btn-lg">See How It Works</a>
+            </div>
+            <div class="hero-proof">
+                <div class="hero-proof-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>No signup required</span>
+                </div>
+                <div class="hero-proof-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Works offline</span>
+                </div>
+                <div class="hero-proof-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Multiple travelers</span>
+                </div>
+            </div>
         </div>
-        <div>
-          <h4>Pre-loaded checklist</h4>
-          <p>All 12+ required documents already listed — just upload and check off.</p>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem-section">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <span class="label">The Problem</span>
+                <h2 class="display-lg">Visa applications are document nightmares</h2>
+                <p>Incomplete documents are the #1 reason for Schengen visa rejections. Don't let disorganization cost you your trip.</p>
+            </div>
+            <div class="problem-grid">
+                <div class="problem-card animate-on-scroll">
+                    <div class="problem-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3>Scattered files everywhere</h3>
+                    <p>Bank statements from email, insurance from another site, flight PDF from the airline — your Downloads folder is chaos.</p>
+                </div>
+                <div class="problem-card animate-on-scroll">
+                    <div class="problem-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <h3>Multiply by travelers</h3>
+                    <p>Applying with your partner or family? Now you have 2x or 3x the documents to track — with no way to keep them separate.</p>
+                </div>
+                <div class="problem-card animate-on-scroll">
+                    <div class="problem-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3>"Did I forget something?"</h3>
+                    <p>No clear checklist, no progress tracking. You're never quite sure if you have everything until you're at the VFS counter.</p>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="solution-feature">
-        <div class="solution-feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="solution-section">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <span class="label">The Solution</span>
+                <h2 class="display-lg">One tool to organize it all</h2>
+                <p>A purpose-built staging area for your visa documents. Upload, organize, export — then walk into the print shop with confidence.</p>
+            </div>
+            <div class="solution-grid">
+                <div class="solution-item animate-on-scroll">
+                    <div class="solution-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    </div>
+                    <div>
+                        <h4>Pre-loaded checklist</h4>
+                        <p>All 12+ required documents already listed — just upload and check off.</p>
+                    </div>
+                </div>
+                <div class="solution-item animate-on-scroll">
+                    <div class="solution-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    </div>
+                    <div>
+                        <h4>Per-person tabs</h4>
+                        <p>Each traveler gets their own checklist. No more mixing up documents.</p>
+                    </div>
+                </div>
+                <div class="solution-item animate-on-scroll">
+                    <div class="solution-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+                    </div>
+                    <div>
+                        <h4>Drag to reorder</h4>
+                        <p>Arrange documents in the exact order your consulate prefers.</p>
+                    </div>
+                </div>
+                <div class="solution-item animate-on-scroll">
+                    <div class="solution-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    </div>
+                    <div>
+                        <h4>One-click PDF export</h4>
+                        <p>Merge everything into a single file. Hand it to the print shop, done.</p>
+                    </div>
+                </div>
+                <div class="solution-item animate-on-scroll">
+                    <div class="solution-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <div>
+                        <h4>100% private</h4>
+                        <p>Everything runs in your browser. No uploads, no servers, no accounts.</p>
+                    </div>
+                </div>
+                <div class="solution-item animate-on-scroll">
+                    <div class="solution-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <div>
+                        <h4>Progress tracking</h4>
+                        <p>Visual indicator shows exactly how many documents you still need.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-          <h4>Per-person tabs</h4>
-          <p>Each traveler gets their own checklist. No more mixing up documents.</p>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <span class="label">How It Works</span>
+                <h2 class="display-lg">Four simple steps to organized documents</h2>
+            </div>
+            <div class="steps-list">
+                <div class="step animate-on-scroll">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Add your travelers</h3>
+                        <p>Create a tab for yourself, then add tabs for your partner, kids, or anyone else applying together. Each person gets their own independent checklist.</p>
+                    </div>
+                </div>
+                <div class="step animate-on-scroll">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Upload your documents</h3>
+                        <p>Go through the checklist and upload each document — passport scan, bank statements, insurance certificate, flight booking, hotel confirmations. PDF or images both work.</p>
+                    </div>
+                </div>
+                <div class="step animate-on-scroll">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Reorder if needed</h3>
+                        <p>Drag documents to match your consulate's preferred order. Mark any documents you've already printed separately so they're excluded from the export.</p>
+                    </div>
+                </div>
+                <div class="step animate-on-scroll">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Export and print</h3>
+                        <p>Click Export to generate a single PDF with all documents, section dividers, and a cover page. Take it to any print shop, print, and you're done.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="solution-feature">
-        <div class="solution-feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="animate-on-scroll">
+                    <div class="stat-value">~15%</div>
+                    <div class="stat-label">Schengen visa rejection rate</div>
+                </div>
+                <div class="animate-on-scroll">
+                    <div class="stat-value">#1</div>
+                    <div class="stat-label">Reason: incomplete documents</div>
+                </div>
+                <div class="animate-on-scroll">
+                    <div class="stat-value">12+</div>
+                    <div class="stat-label">Documents typically required</div>
+                </div>
+                <div class="animate-on-scroll">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Data sent to servers</div>
+                </div>
+            </div>
         </div>
-        <div>
-          <h4>Drag to reorder</h4>
-          <p>Arrange documents in the exact order your consulate prefers.</p>
+    </section>
+
+    <!-- Countries Section -->
+    <section class="countries-section">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <h2 class="display-lg">Works for all Schengen destinations</h2>
+            </div>
+            <div class="countries-grid animate-on-scroll">
+                <div class="country-tag"><span class="country-flag">🇫🇷</span> France</div>
+                <div class="country-tag"><span class="country-flag">🇩🇪</span> Germany</div>
+                <div class="country-tag"><span class="country-flag">🇮🇹</span> Italy</div>
+                <div class="country-tag"><span class="country-flag">🇪🇸</span> Spain</div>
+                <div class="country-tag"><span class="country-flag">🇳🇱</span> Netherlands</div>
+                <div class="country-tag"><span class="country-flag">🇧🇪</span> Belgium</div>
+                <div class="country-tag"><span class="country-flag">🇦🇹</span> Austria</div>
+                <div class="country-tag"><span class="country-flag">🇬🇷</span> Greece</div>
+                <div class="country-tag"><span class="country-flag">🇵🇹</span> Portugal</div>
+                <div class="country-tag"><span class="country-flag">🇨🇭</span> Switzerland</div>
+            </div>
+            <p class="countries-note animate-on-scroll">The core document checklist is similar across all 29 Schengen countries. Country-specific requirements coming soon.</p>
         </div>
-      </div>
-      <div class="solution-feature">
-        <div class="solution-feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <span class="label">FAQ</span>
+                <h2 class="display-lg">Frequently Asked Questions</h2>
+            </div>
+            <div class="faq-grid">
+                <div class="faq-item open animate-on-scroll">
+                    <button class="faq-question">
+                        Is this tool really free?
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="faq-answer">
+                        Yes, completely free. There's no catch, no premium tier (yet), and no data collection. The tool runs entirely in your browser — we don't even have servers to charge you for.
+                    </div>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        Are my documents safe?
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="faq-answer">
+                        Absolutely. Your documents never leave your device. The tool uses pdf-lib to merge PDFs entirely in your browser. There are no uploads, no accounts, and no tracking. You can even use the tool offline after loading it once.
+                    </div>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        What documents do I need for a Schengen visa?
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="faq-answer">
+                        The standard list includes: passport (valid 3+ months beyond return), passport photos, completed application form, cover letter, flight itinerary, travel insurance (min €30,000), hotel bookings, bank statements (3-6 months), employment letter, salary slips, and income tax returns. Some consulates may have additional requirements.
+                    </div>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        Can I use this for multiple people?
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="faq-answer">
+                        Yes! That's one of the main features. Click the + button to add tabs for each traveler. Each person gets their own checklist. You can export PDFs individually or combine everyone into one document.
+                    </div>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        What file formats are supported?
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="faq-answer">
+                        You can upload PDFs, JPGs, PNGs, and WebP images. All formats are merged into a single A4 PDF for printing. Images are automatically scaled to fit the page.
+                    </div>
+                </div>
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        I already printed some documents. Can I exclude them?
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="faq-answer">
+                        Yes. Click the "Printed" button on any document to mark it as already printed. It will count as complete in your progress tracker but won't be included in the PDF export.
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-          <h4>One-click PDF export</h4>
-          <p>Merge everything into a single file. Hand it to the print shop, done.</p>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="display-lg animate-on-scroll">Ready to get organized?</h2>
+            <p class="animate-on-scroll">Stop worrying about missing documents. Start your visa application the right way.</p>
+            <div class="cta-buttons animate-on-scroll">
+                <a href="app.html" class="btn btn-white btn-lg">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Start Organizing — Free
+                </a>
+                <a href="features.html" class="btn btn-outline-white btn-lg">View All Features</a>
+            </div>
         </div>
-      </div>
-      <div class="solution-feature">
-        <div class="solution-feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <a href="#" class="nav-logo">
+                        <div class="flag">
+                            <span class="blue"></span>
+                            <span class="white"></span>
+                            <span class="red"></span>
+                        </div>
+                        <span class="brand">Visa Doc Collator</span>
+                    </a>
+                    <p class="tagline">Simplifying Schengen visa applications</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>Product</h4>
+                        <ul>
+                            <li><a href="features.html">Features</a></li>
+                            <li><a href="#how-it-works">How It Works</a></li>
+                            <li><a href="#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Resources</h4>
+                        <ul>
+                            <li><a href="#">Templates</a></li>
+                            <li><a href="#">Guide</a></li>
+                            <li><a href="#">Support</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Privacy</a></li>
+                            <li><a href="#">Terms</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-copyright">&copy; 2024 Visa Doc Collator. Made with love for travelers.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Twitter">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path></svg>
+                    </a>
+                    <a href="#" aria-label="GitHub">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"></path></svg>
+                    </a>
+                </div>
+            </div>
         </div>
-        <div>
-          <h4>100% private</h4>
-          <p>Everything runs in your browser. No uploads, no servers, no accounts.</p>
-        </div>
-      </div>
-      <div class="solution-feature">
-        <div class="solution-feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div>
-          <h4>Progress tracking</h4>
-          <p>Visual indicator shows exactly how many documents you still need.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+    </footer>
 
-<!-- How It Works -->
-<section class="how-it-works" id="how-it-works">
-  <div class="how-inner">
-    <h2 class="section-title">How it works</h2>
+    <!-- Scripts -->
+    <script>
+        // FAQ toggle
+        document.querySelectorAll('.faq-question').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.parentElement;
+                const wasOpen = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+                if (!wasOpen) item.classList.add('open');
+            });
+        });
 
-    <div class="steps">
-      <div class="step">
-        <div class="step-number">1</div>
-        <div class="step-content">
-          <h3>Add your travelers</h3>
-          <p>Create a tab for yourself, then add tabs for your partner, kids, or anyone else applying together. Each person gets their own independent checklist.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <div class="step-content">
-          <h3>Upload your documents</h3>
-          <p>Go through the checklist and upload each document — passport scan, bank statements, insurance certificate, flight booking, hotel confirmations. PDF or images both work.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <div class="step-content">
-          <h3>Reorder if needed</h3>
-          <p>Drag documents to match your consulate's preferred order. Mark any documents you've already printed separately so they're excluded from the export.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">4</div>
-        <div class="step-content">
-          <h3>Export and print</h3>
-          <p>Click Export to generate a single PDF with all documents, section dividers, and a cover page. Take it to any print shop, print, and you're done.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+        // Scroll animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
 
-<!-- Stats -->
-<section class="stats">
-  <div class="stats-inner">
-    <div>
-      <div class="stat-value">~15%</div>
-      <div class="stat-label">Schengen visa rejection rate</div>
-    </div>
-    <div>
-      <div class="stat-value">#1</div>
-      <div class="stat-label">Reason: incomplete documents</div>
-    </div>
-    <div>
-      <div class="stat-value">12+</div>
-      <div class="stat-label">Documents typically required</div>
-    </div>
-    <div>
-      <div class="stat-value">0</div>
-      <div class="stat-label">Data sent to servers</div>
-    </div>
-  </div>
-</section>
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
 
-<!-- Countries -->
-<section class="countries">
-  <div class="countries-inner">
-    <h2 class="section-title">Works for all Schengen destinations</h2>
-    <div class="country-grid">
-      <div class="country-tag"><span class="country-flag">🇫🇷</span> France</div>
-      <div class="country-tag"><span class="country-flag">🇩🇪</span> Germany</div>
-      <div class="country-tag"><span class="country-flag">🇮🇹</span> Italy</div>
-      <div class="country-tag"><span class="country-flag">🇪🇸</span> Spain</div>
-      <div class="country-tag"><span class="country-flag">🇳🇱</span> Netherlands</div>
-      <div class="country-tag"><span class="country-flag">🇧🇪</span> Belgium</div>
-      <div class="country-tag"><span class="country-flag">🇦🇹</span> Austria</div>
-      <div class="country-tag"><span class="country-flag">🇬🇷</span> Greece</div>
-      <div class="country-tag"><span class="country-flag">🇵🇹</span> Portugal</div>
-      <div class="country-tag"><span class="country-flag">🇨🇭</span> Switzerland</div>
-    </div>
-    <p class="countries-note">The core document checklist is similar across all 29 Schengen countries. Country-specific requirements coming soon.</p>
-  </div>
-</section>
+            document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+        });
 
-<!-- FAQ -->
-<section class="faq">
-  <div class="faq-inner">
-    <h2 class="section-title">Frequently asked questions</h2>
-
-    <div class="faq-item open">
-      <button class="faq-question">
-        Is this tool really free?
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="faq-answer">
-        Yes, completely free. There's no catch, no premium tier (yet), and no data collection. The tool runs entirely in your browser — we don't even have servers to charge you for.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-question">
-        Are my documents safe?
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="faq-answer">
-        Absolutely. Your documents never leave your device. The tool uses pdf-lib to merge PDFs entirely in your browser. There are no uploads, no accounts, and no tracking. You can even use the tool offline after loading it once.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-question">
-        What documents do I need for a Schengen visa?
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="faq-answer">
-        The standard list includes: passport (valid 3+ months beyond return), passport photos, completed application form, cover letter, flight itinerary, travel insurance (min €30,000), hotel bookings, bank statements (3-6 months), employment letter, salary slips, and income tax returns. Some consulates may have additional requirements.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-question">
-        Can I use this for multiple people?
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="faq-answer">
-        Yes! That's one of the main features. Click the + button to add tabs for each traveler. Each person gets their own checklist. You can export PDFs individually or combine everyone into one document.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-question">
-        What file formats are supported?
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="faq-answer">
-        You can upload PDFs, JPGs, PNGs, and WebP images. All formats are merged into a single A4 PDF for printing. Images are automatically scaled to fit the page.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <button class="faq-question">
-        I already printed some documents. Can I exclude them?
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="faq-answer">
-        Yes. Click the "Printed" button on any document to mark it as already printed. It will count as complete in your progress tracker but won't be included in the PDF export.
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta">
-  <div class="cta-inner">
-    <h2 class="section-title">Ready to get organized?</h2>
-    <p class="cta-subtitle">Stop worrying about missing documents. Start your visa application the right way.</p>
-    <a href="app.html" class="btn-primary">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-      Start Organizing — Free
-    </a>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="footer">
-  <div class="footer-links">
-    <a href="app.html">Open Tool</a>
-    <a href="#how-it-works">How It Works</a>
-    <a href="#faq">FAQ</a>
-  </div>
-  <p>Made with care for travelers everywhere. No data collected, ever.</p>
-</footer>
-
-<script>
-  // FAQ toggle
-  document.querySelectorAll('.faq-question').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.parentElement;
-      const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!wasOpen) item.classList.add('open');
-    });
-  });
-
-  // Smooth scroll
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
-</script>
-
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
 </body>
 </html>
