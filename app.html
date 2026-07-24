@@ -5,48 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Schengen Visa Document Collator</title>
 <meta name="description" content="Free tool to organize and merge all your Schengen visa documents into a single print-ready PDF.">
-<meta name="theme-color" content="#1B4B6B">
+<meta name="theme-color" content="#111111">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-<link href="https://fonts.cdnfonts.com/css/switzer" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #F6F4F0;
-    --surface: #FFFFFF;
-    --surface-alt: #EDE9E3;
-    --border: #D6D0C6;
-    --border-light: #E8E3DB;
-    --text: #1A1612;
-    --text-muted: #7A7267;
-    --text-light: #A69D91;
-    --accent: #1B4B6B;
-    --accent-light: #E8F0F6;
-    --accent-hover: #153D58;
-    --success: #2D6A4F;
-    --success-bg: #E8F5ED;
-    --success-border: #B7DBCA;
-    --warning: #B45309;
-    --warning-bg: #FEF3C7;
-    --danger: #9B2C2C;
-    --danger-bg: #FEE2E2;
-    --shadow-sm: 0 1px 2px rgba(26,22,18,0.06);
-    --shadow-md: 0 4px 12px rgba(26,22,18,0.08);
-    --shadow-lg: 0 8px 30px rgba(26,22,18,0.12);
-    --radius: 10px;
+    /* Cal.com Design System Tokens */
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-alt: #f5f5f5;
+    --border: #e5e7eb;
+    --border-light: #f3f4f6;
+    --text: #111111;
+    --text-muted: #6b7280;
+    --text-light: #9ca3af;
+    --accent: #111111;
+    --accent-light: #f3f4f6;
+    --accent-hover: #242424;
+    --success: #10b981;
+    --success-bg: #d1fae5;
+    --success-border: #a7f3d0;
+    --warning: #f59e0b;
+    --warning-bg: #fef3c7;
+    --danger: #ef4444;
+    --danger-bg: #fee2e2;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+    --radius: 8px;
     --radius-sm: 6px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Switzer', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
 
   .header {
@@ -65,7 +68,7 @@
     width: 500px;
     height: 500px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.03);
     pointer-events: none;
   }
 
@@ -108,9 +111,9 @@
   .header { transition: background-color 0.45s ease; }
 
   .header h1 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 28px;
-    font-weight: 400;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 22px;
+    font-weight: 600;
     letter-spacing: -0.02em;
   }
 
@@ -188,7 +191,7 @@
   }
 
   .tab:hover { color: var(--text); background: var(--surface-alt); }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 600; }
 
   .tab .tab-badge {
     font-size: 10px;
@@ -201,7 +204,7 @@
     text-align: center;
   }
 
-  .tab.active .tab-badge { background: var(--accent-light); color: var(--accent); }
+  .tab.active .tab-badge { background: var(--text); color: white; }
   .tab-badge.complete { background: var(--success-bg) !important; color: var(--success) !important; }
 
   .tab-add {
@@ -218,7 +221,7 @@
     transition: all 0.15s ease;
   }
 
-  .tab-add:hover { color: var(--accent); background: var(--accent-light); }
+  .tab-add:hover { color: var(--text); background: var(--surface-alt); }
 
   .tab-close, .tab-rename {
     display: none;
@@ -238,7 +241,7 @@
 
   .tab:hover .tab-close, .tab:hover .tab-rename { display: flex; }
   .tab-close:hover { background: var(--danger-bg); color: var(--danger); }
-  .tab-rename:hover { background: var(--accent-light); color: var(--accent); }
+  .tab-rename:hover { background: var(--surface-alt); color: var(--text); }
 
   .container {
     max-width: 900px;
@@ -298,8 +301,8 @@
   .doc-card.has-file { border-color: var(--success-border); background: var(--success-bg); }
   .doc-card.has-file .doc-status { background: var(--success); border-color: var(--success); }
   .doc-card.has-file .doc-status svg { opacity: 1; }
-  .doc-card.is-printed { border-color: #C4B5FD; background: #F5F3FF; }
-  .doc-card.is-printed .doc-status { background: #7C3AED; border-color: #7C3AED; }
+  .doc-card.is-printed { border-color: #d1d5db; background: #f9fafb; }
+  .doc-card.is-printed .doc-status { background: #6b7280; border-color: #6b7280; }
   .doc-card.is-printed .doc-status svg { opacity: 1; }
 
   .btn-printed {
@@ -308,12 +311,12 @@
     border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease;
     display: flex; align-items: center; gap: 5px; white-space: nowrap;
   }
-  .btn-printed:hover { border-color: #C4B5FD; background: #F5F3FF; color: #7C3AED; }
-  .btn-printed.active { border-color: #C4B5FD; background: #7C3AED; color: white; }
+  .btn-printed:hover { border-color: #d1d5db; background: #f9fafb; color: #6b7280; }
+  .btn-printed.active { border-color: #6b7280; background: #6b7280; color: white; }
 
   .printed-badge {
     display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; font-weight: 500; color: #7C3AED; background: #EDE9FE;
+    font-size: 11px; font-weight: 500; color: #6b7280; background: #f3f4f6;
     padding: 2px 7px; border-radius: 3px; margin-left: 6px; vertical-align: middle;
   }
   .printed-badge svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; }
@@ -456,7 +459,7 @@
     transition: all 0.2s ease; flex-shrink: 0;
   }
   .preview-toggle-sidebar:hover { background: rgba(255,255,255,0.12); color: #fff; }
-  .preview-toggle-sidebar.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .preview-toggle-sidebar.active { background: #ffffff; border-color: #ffffff; color: #111; }
   .preview-toggle-sidebar svg { width: 18px; height: 18px; }
 
   .preview-title {
@@ -482,7 +485,7 @@
 
   .preview-btn-primary {
     background: var(--accent); border: none; color: #fff;
-    box-shadow: 0 4px 12px rgba(27,75,107,0.4);
+    box-shadow: 0 4px 12px rgba(17,17,17,0.3);
   }
   .preview-btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
@@ -539,8 +542,8 @@
     border-color: rgba(255,255,255,0.08);
   }
   .preview-doc-item.active {
-    background: rgba(27,75,107,0.2);
-    border-color: rgba(27,75,107,0.4);
+    background: rgba(17,17,17,0.15);
+    border-color: rgba(17,17,17,0.3);
   }
   .preview-doc-item.active::before { height: 24px; }
 
@@ -551,7 +554,7 @@
     transition: all 0.2s ease;
   }
   .preview-doc-item:hover .preview-doc-thumb { border-color: rgba(255,255,255,0.2); }
-  .preview-doc-item.active .preview-doc-thumb { border-color: var(--accent); }
+  .preview-doc-item.active .preview-doc-thumb { border-color: #ffffff; }
   .preview-doc-thumb img { width: 100%; height: 100%; object-fit: cover; }
   .preview-doc-thumb svg { width: 22px; height: 22px; color: rgba(255,255,255,0.4); }
 
@@ -720,7 +723,7 @@
 
   .start-screen {
     min-height: 100vh;
-    background: linear-gradient(180deg, var(--bg) 0%, #fff 50%, var(--bg) 100%);
+    background: var(--bg);
     display: flex;
     flex-direction: column;
   }
@@ -747,9 +750,9 @@
   }
 
   .start-header h1 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 20px;
-    font-weight: 400;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
     color: var(--text);
   }
 
@@ -766,12 +769,13 @@
   }
 
   .start-title {
-    font-family: 'Instrument Serif', serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: clamp(28px, 5vw, 42px);
-    font-weight: 400;
+    font-weight: 600;
     text-align: center;
     margin-bottom: 12px;
     color: var(--text);
+    letter-spacing: -1px;
   }
 
   .start-subtitle {
@@ -800,7 +804,7 @@
   }
 
   .start-option:hover {
-    border-color: var(--accent);
+    border-color: var(--text);
     box-shadow: var(--shadow-lg);
     transform: translateY(-4px);
   }
@@ -808,8 +812,8 @@
   .start-option-icon {
     width: 64px;
     height: 64px;
-    background: var(--accent-light);
-    border-radius: 16px;
+    background: var(--surface-alt);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -819,7 +823,7 @@
   .start-option-icon svg {
     width: 32px;
     height: 32px;
-    color: var(--accent);
+    color: var(--text);
   }
 
   .start-option h3 {
@@ -858,7 +862,7 @@
     font-family: inherit;
   }
 
-  .template-back:hover { color: var(--accent); }
+  .template-back:hover { color: var(--text); }
   .template-back svg { width: 18px; height: 18px; }
 
   .template-grid {
@@ -878,8 +882,8 @@
   }
 
   .template-card:hover {
-    border-color: var(--accent);
-    background: var(--accent-light);
+    border-color: var(--text);
+    background: var(--surface-alt);
   }
 
   .template-card-flag {
@@ -1000,7 +1004,7 @@
   .custom-list-item:last-child { border-bottom: none; }
   .custom-list-item:hover { background: var(--surface-alt); }
   .custom-list-item.dragging { opacity: 0.5; }
-  .custom-list-item.drag-over { background: var(--accent-light); }
+  .custom-list-item.drag-over { background: var(--surface-alt); }
 
   .custom-list-item .drag-handle {
     color: var(--text-light);
@@ -1100,19 +1104,20 @@
     padding: 12px;
     font-size: 14px;
     font-family: inherit;
-    color: var(--accent);
-    background: var(--accent-light);
-    border: 1px dashed var(--accent);
-    border-radius: 10px;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
     cursor: pointer;
     margin-bottom: 16px;
     transition: all 0.2s;
   }
 
   .paste-toggle:hover {
-    background: var(--accent);
+    background: var(--text);
     color: white;
     border-style: solid;
+    border-color: var(--text);
   }
 
   .paste-toggle svg {
