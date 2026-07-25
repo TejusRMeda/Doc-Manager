@@ -93,6 +93,31 @@
     gap: 10px;
   }
 
+  .header-back {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .header-back:hover {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+
+  .header-back svg {
+    width: 18px;
+    height: 18px;
+  }
+
   .header-flag {
     display: flex;
     gap: 3px;
@@ -1512,6 +1537,12 @@ VFS Declaration Form"></textarea>
   <div class="header-inner">
     <div class="header-top">
       <div class="header-brand">
+        <button class="header-back" onclick="goBackToSetup()" title="Back to setup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+        </button>
         <div class="header-flag">
           <span class="flag-blue"></span>
           <span class="flag-white"></span>
@@ -1707,11 +1738,30 @@ VFS Declaration Form"></textarea>
 
 let customDocuments = [];
 let draggedItem = null;
+let entrySource = null; // 'template' or 'custom' - tracks where user came from
 
 function showStartOptions() {
   document.getElementById('startOptions').style.display = 'grid';
   document.getElementById('templateSelect').classList.remove('active');
   document.getElementById('customBuilder').classList.remove('active');
+}
+
+function goBackToSetup() {
+  // Hide main app, show start screen
+  document.getElementById('mainApp').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+
+  // Navigate to the appropriate section based on entry source
+  if (entrySource === 'template') {
+    showTemplateSelect();
+  } else if (entrySource === 'custom') {
+    showCustomBuilder();
+  } else {
+    showStartOptions();
+  }
+
+  // Scroll to top
+  window.scrollTo(0, 0);
 }
 
 function showTemplateSelect() {
@@ -1753,6 +1803,9 @@ function populateTemplateGrid() {
 }
 
 function selectTemplate(countryCode) {
+  // Track entry source for back navigation
+  entrySource = 'template';
+
   // Hide start screen, show main app
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('mainApp').classList.remove('hidden');
@@ -2015,6 +2068,9 @@ function addAllParsedItems() {
 
 function startWithCustomList() {
   if (customDocuments.length === 0) return;
+
+  // Track entry source for back navigation
+  entrySource = 'custom';
 
   // Create custom country config
   COUNTRY_DOCS.custom = {
