@@ -733,6 +733,7 @@
     box-shadow: var(--shadow-lg); transition: transform 0.3s ease; z-index: 100;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--danger); max-width: min(420px, calc(100vw - 32px)); white-space: pre-line; line-height: 1.45; }
 
   .export-spinner {
     display: inline-block; width: 16px; height: 16px;
@@ -2928,20 +2929,76 @@ function renderList(cid, ids, person) {
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function fmtSz(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return (b/1024).toFixed(1) + ' KB'; return (b/1048576).toFixed(1) + ' MB'; }
 
+/* ── FILE VALIDATION ──
+   The accept attribute is only a hint (users can override it in the picker), so
+   every file is checked by extension, MIME type and magic bytes before we keep it. */
+
+const UPLOAD_ACCEPT = 'application/pdf,image/jpeg,image/png,image/webp,.pdf,.jpg,.jpeg,.png,.webp';
+const ACCEPTED_EXTS = { pdf: 'pdf', jpg: 'jpg', jpeg: 'jpg', png: 'png', webp: 'webp' };
+const ACCEPTED_MIMES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/pjpeg', 'image/png', 'image/webp'];
+const MAX_FILE_MB = 25;
+const KIND_LABEL = { pdf: 'PDF', jpg: 'JPEG', png: 'PNG', webp: 'WebP' };
+
+function fileExt(name) { const m = /\.([a-z0-9]+)$/i.exec(name || ''); return m ? m[1].toLowerCase() : ''; }
+
+// Reads the file header so a renamed .txt/.exe can't slip through as a "PDF"
+async function sniffFileKind(file) {
+  const b = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const at = (i, sig) => sig.every((v, k) => b[i + k] === v);
+  if (at(0, [0x25,0x50,0x44,0x46])) return 'pdf';                                  // %PDF
+  if (at(0, [0xFF,0xD8,0xFF])) return 'jpg';
+  if (at(0, [0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A])) return 'png';
+  if (at(0, [0x52,0x49,0x46,0x46]) && at(8, [0x57,0x45,0x42,0x50])) return 'webp'; // RIFF....WEBP
+  return null;
+}
+
+async function validateFiles(files) {
+  const accepted = [], rejected = [];
+  for (const f of files) {
+    const ext = ACCEPTED_EXTS[fileExt(f.name)];
+    if (!ext || (f.type && !ACCEPTED_MIMES.includes(f.type.toLowerCase()))) {
+      rejected.push(`${f.name} — only PDF, JPG, PNG or WebP files are allowed`);
+    } else if (f.size === 0) {
+      rejected.push(`${f.name} — file is empty`);
+    } else if (f.size > MAX_FILE_MB * 1048576) {
+      rejected.push(`${f.name} — larger than ${MAX_FILE_MB} MB`);
+    } else {
+      let kind = null;
+      try { kind = await sniffFileKind(f); } catch { /* unreadable — handled below */ }
+      if (!kind) rejected.push(`${f.name} — not a readable PDF or image`);
+      else if (kind !== ext) rejected.push(`${f.name} — contents are ${KIND_LABEL[kind]}, not ${KIND_LABEL[ext]}`);
+      else accepted.push(f);
+    }
+  }
+  return { accepted, rejected };
+}
+
+function reportRejected(rejected, acceptedCount) {
+  if (!rejected.length) return;
+  const shown = rejected.slice(0, 3).map(r => `• ${r}`);
+  if (rejected.length > 3) shown.push(`• and ${rejected.length - 3} more`);
+  const head = acceptedCount
+    ? `Added ${acceptedCount} file${acceptedCount > 1 ? 's' : ''}. Skipped ${rejected.length}:`
+    : `Couldn't add ${rejected.length} file${rejected.length > 1 ? 's' : ''}:`;
+  showToast(`${head}\n${shown.join('\n')}`, true);
+  trackEvent('upload_rejected', { count: rejected.length, country: currentCountry });
+}
+
 function triggerUpload(id) {
   const person = ap();
   const inp = document.createElement('input');
-  inp.type = 'file'; inp.accept = '.pdf,.jpg,.jpeg,.png,.webp'; inp.multiple = true;
-  inp.onchange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 1) {
-      person.documents[id].file = files[0];
-    } else if (files.length > 1) {
-      person.documents[id].file = { name: `${files.length} files selected`, size: files.reduce((a,f) => a + f.size, 0), _multi: files };
+  inp.type = 'file'; inp.accept = UPLOAD_ACCEPT; inp.multiple = true;
+  inp.onchange = async (e) => {
+    const { accepted, rejected } = await validateFiles(Array.from(e.target.files));
+    if (accepted.length === 1) {
+      person.documents[id].file = accepted[0];
+    } else if (accepted.length > 1) {
+      person.documents[id].file = { name: `${accepted.length} files selected`, size: accepted.reduce((a,f) => a + f.size, 0), _multi: accepted };
     }
     renderTabs(); renderAll();
-    showToast(`Uploaded to "${person.documents[id].name}"`);
-    trackEvent('document_uploaded', { docId: id, country: currentCountry });
+    if (rejected.length) reportRejected(rejected, accepted.length);
+    else if (accepted.length) showToast(`Uploaded to "${person.documents[id].name}"`);
+    if (accepted.length) trackEvent('document_uploaded', { docId: id, country: currentCountry });
   };
   inp.click();
 }
@@ -3405,7 +3462,15 @@ function dl(bytes, fn) {
 }
 function san(n) { return n.replace(/[^a-zA-Z0-9_\- ]/g,'').replace(/\s+/g,'_'); }
 function readFile(f) { return new Promise((res,rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsArrayBuffer(f); }); }
-function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+let _toastTimer = null;
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 5000 : 2500);
+}
 
 // Convert WebP or other formats to JPEG for PDF embedding
 function convertImageToJpeg(file) {
