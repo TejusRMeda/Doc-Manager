@@ -3124,6 +3124,24 @@ function handleDrop(e) {
    PDF EXPORT
    ══════════════════════════════════════════════════════════════════════════ */
 
+/* pdf-lib's standard fonts encode WinAnsi only and THROW on anything outside it,
+   which aborts the whole export. Several country hints ship with "≈", and people
+   type custom document names containing ₹, emoji or non-Latin scripts. */
+const PDF_CHAR_MAP = {
+  '≈': '~', '≤': '<=', '≥': '>=', '→': '->', '←': '<-', '↔': '<->',
+  '₹': 'Rs.', '₩': 'W', '₽': 'RUB', '№': 'No.', '✓': 'v', '✔': 'v', '✗': 'x', '✕': 'x',
+  '′': "'", '″': '"', '−': '-', '⁄': '/',
+};
+function pdfText(s, font, fallback = '') {
+  const t = String(s ?? '').replace(/[≈≤≥→←↔₹₩₽№✓✔✗✕′″−⁄]/g, ch => PDF_CHAR_MAP[ch]);
+  try { font.encodeText(t); return t; } catch { /* fall through to per-character strip */ }
+  let safe = '';
+  for (const ch of t) {
+    try { font.encodeText(ch); safe += ch; } catch { /* drop emoji, other scripts */ }
+  }
+  return safe.replace(/\s+/g, ' ').trim() || fallback;
+}
+
 async function buildPersonPDF(person, merged, fr, fb, forceDividers = null) {
   const { rgb } = PDFLib;
   // forceDividers: true = always show, false = never show, null = use checkbox
@@ -3141,8 +3159,9 @@ async function buildPersonPDF(person, merged, fr, fb, forceDividers = null) {
       const dv = merged.addPage([595.28,841.89]);
       dv.drawRectangle({ x:0, y:380, width:595.28, height:82, color: rgb(0.96,0.95,0.94) });
       dv.drawText(`${i+1}`, { x:50, y:404, size:36, font:fb, color: rgb(0.106,0.294,0.42) });
-      dv.drawText(doc.name, { x:100, y:410, size:18, font:fb, color: rgb(0.1,0.09,0.07) });
-      if (doc.hint) dv.drawText(doc.hint, { x:100, y:390, size:11, font:fr, color: rgb(0.48,0.45,0.4) });
+      dv.drawText(pdfText(doc.name, fb, 'Document'), { x:100, y:410, size:18, font:fb, color: rgb(0.1,0.09,0.07) });
+      const hint = pdfText(doc.hint, fr);
+      if (hint) dv.drawText(hint, { x:100, y:390, size:11, font:fr, color: rgb(0.48,0.45,0.4) });
     }
 
     for (const file of files) {
@@ -3176,7 +3195,7 @@ async function buildPersonPDF(person, merged, fr, fb, forceDividers = null) {
       } catch (err) {
         console.error(err);
         const ep = merged.addPage([595.28,841.89]);
-        ep.drawText(`Could not process: ${file.name}`, { x:50, y:420, size:14, font:fr, color: rgb(0.6,0.17,0.17) });
+        ep.drawText(pdfText(`Could not process: ${file.name}`, fr, 'Could not process this file'), { x:50, y:420, size:14, font:fr, color: rgb(0.6,0.17,0.17) });
       }
     }
   }
