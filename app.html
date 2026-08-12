@@ -1752,13 +1752,6 @@ VFS Declaration Form"></textarea>
           </svg>
           Close
         </button>
-        <button class="preview-btn preview-btn-primary" onclick="downloadFromPreview()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Download PDF
-        </button>
       </div>
     </div>
     <div class="preview-body">
@@ -3204,8 +3197,6 @@ async function buildPersonPDF(person, merged, fr, fb, forceDividers = null) {
 /* ── PDF PREVIEW ── */
 
 let _previewBlobUrl = null;
-let _previewBytes = null;
-let _previewFilename = null;
 let _previewDocPages = []; // Track page numbers for each document
 
 async function generateThumbnail(file) {
@@ -3383,13 +3374,13 @@ async function previewCurrentPDF() {
     await buildPersonPDF(person, m, fr, fb, true); // Preview always shows dividers for organization
     if (m.getPageCount() === 0) { showToast('No documents to export'); return; }
     const countryDocs = getCountryDocs();
-    _previewFilename = `${countryDocs.name}_Visa_${san(person.name)}_${new Date().toISOString().slice(0,10)}.pdf`;
-    _previewBytes = await m.save();
+    const filename = `${countryDocs.name}_Visa_${san(person.name)}_${new Date().toISOString().slice(0,10)}.pdf`;
+    const bytes = await m.save();
     if (_previewBlobUrl) URL.revokeObjectURL(_previewBlobUrl);
-    const blob = new Blob([_previewBytes], { type: 'application/pdf' });
+    const blob = new Blob([bytes], { type: 'application/pdf' });
     _previewBlobUrl = URL.createObjectURL(blob);
     document.getElementById('previewFrame').src = _previewBlobUrl;
-    document.getElementById('previewTitle').innerHTML = `${esc(_previewFilename)} <span>— ${m.getPageCount()} pages</span>`;
+    document.getElementById('previewTitle').innerHTML = `${esc(filename)} <span>— ${m.getPageCount()} pages</span>`;
     document.getElementById('previewOverlay').classList.add('open');
 
     // Add keyboard listener
@@ -3439,13 +3430,6 @@ function handlePreviewKeydown(e) {
       ? Math.min(currentIdx + 1, items.length - 1)
       : Math.max(currentIdx - 1, 0);
     if (items[nextIdx]) items[nextIdx].click();
-  }
-}
-
-function downloadFromPreview() {
-  if (_previewBytes && _previewFilename) {
-    dl(_previewBytes, _previewFilename);
-    showToast('Downloading…');
   }
 }
 
