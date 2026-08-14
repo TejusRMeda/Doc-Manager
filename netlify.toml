@@ -4,16 +4,18 @@
   # No build command needed - static HTML site
   publish = "."
 
-# Redirects - ensure clean URLs
+# Netlify is retired as a serving host — Vercel is canonical (see og:url and
+# sitemap.xml). Netlify publishes statically and cannot run the api/*.js
+# functions, so /api/track would 404 here and analytics events would silently
+# vanish for anyone who landed on this domain. Send everything to Vercel.
+#
+# Note: this also redirects Netlify deploy previews. Use the Vercel preview URL
+# on pull requests instead.
 [[redirects]]
-  from = "/features"
-  to = "/features.html"
-  status = 200
-
-[[redirects]]
-  from = "/app"
-  to = "/app.html"
-  status = 200
+  from = "/*"
+  to = "https://visa-doc-collator.vercel.app/:splat"
+  status = 301
+  force = true
 
 # Headers for security and caching
 [[headers]]
