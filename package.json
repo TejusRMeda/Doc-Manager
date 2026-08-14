@@ -1,0 +1,9 @@
+{
+  "name": "visa-doc-collator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Schengen Visa Document Collator",
+  "dependencies": {
+    "@upstash/redis": "^1.34.0"
+  }
+}

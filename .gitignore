@@ -1,3 +1,6 @@
+# Dependencies
+node_modules/
+
 # Vercel
 .vercel
 
@@ -15,5 +18,11 @@
 # Logs
 *.log
 
+# Source video masters — too large for git, transcoded copies are what ship
+resources/*.mp4
+resources/*.mov
+
 # Local development
 *.local
+.env*.local
+.env.local

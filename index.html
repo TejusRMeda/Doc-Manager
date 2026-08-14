@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schengen Visa Document Collator — Free Tool to Organize Your Visa Documents</title>
-    <meta name="description" content="Free tool to organize and merge all your Schengen visa documents into a single print-ready PDF. Supports multiple travelers, drag-to-reorder, and works 100% offline.">
-    <meta name="keywords" content="Schengen visa, document checklist, visa application, PDF merge, France visa, Germany visa, travel documents">
+    <meta name="description"
+        content="Free tool to organize and merge all your Schengen visa documents into a single print-ready PDF. Supports multiple travelers, drag-to-reorder, and works 100% offline.">
+    <meta name="keywords"
+        content="Schengen visa, document checklist, visa application, PDF merge, France visa, Germany visa, travel documents">
 
     <!-- Open Graph -->
     <meta property="og:title" content="Schengen Visa Document Collator — Free Organizing Tool">
-    <meta property="og:description" content="Stop losing track of your visa documents. Organize, reorder, and export everything as a single print-ready PDF.">
+    <meta property="og:description"
+        content="Stop losing track of your visa documents. Organize, reorder, and export everything as a single print-ready PDF.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://visa-doc-collator.vercel.app">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Schengen Visa Document Collator">
-    <meta name="twitter:description" content="Free tool to organize all your Schengen visa documents into one print-ready PDF.">
+    <meta name="twitter:description"
+        content="Free tool to organize all your Schengen visa documents into one print-ready PDF.">
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -84,7 +89,9 @@
         }
 
         /* ===== Reset & Base ===== */
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -234,9 +241,18 @@
             border-radius: 1px;
         }
 
-        .nav-logo .flag .blue { background: #002395; }
-        .nav-logo .flag .white { background: var(--canvas); border: 1px solid var(--hairline); }
-        .nav-logo .flag .red { background: #ED2939; }
+        .nav-logo .flag .blue {
+            background: #002395;
+        }
+
+        .nav-logo .flag .white {
+            background: var(--canvas);
+            border: 1px solid var(--hairline);
+        }
+
+        .nav-logo .flag .red {
+            background: #ED2939;
+        }
 
         .nav-logo span.brand {
             font-size: 15px;
@@ -379,6 +395,125 @@
             width: 18px;
             height: 18px;
             color: var(--success);
+        }
+
+        /* Layout wrapper only — the frame itself carries the border and shadow */
+        .hero-visual {
+            margin-top: var(--spacing-xxl);
+        }
+
+        /* ===== Demo Video ===== */
+        .demo-frame {
+            position: relative;
+            max-width: 960px;
+            margin: 0 auto;
+            aspect-ratio: 1920 / 1048;
+            border-radius: var(--rounded-xl);
+            overflow: hidden;
+            background: var(--surface-dark);
+            box-shadow: 0 24px 60px -24px rgba(17, 17, 17, 0.28), 0 2px 8px rgba(17, 17, 17, 0.06);
+        }
+
+        .demo-frame video {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Overlay button sits above the poster until the viewer opts in */
+        .demo-play {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+            width: 100%;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+            font: inherit;
+            color: var(--on-dark);
+            background: linear-gradient(180deg, rgba(16, 16, 16, 0.28) 0%, rgba(16, 16, 16, 0.52) 100%);
+            transition: background 0.25s ease;
+        }
+
+        .demo-play:hover,
+        .demo-play:focus-visible {
+            background: linear-gradient(180deg, rgba(16, 16, 16, 0.38) 0%, rgba(16, 16, 16, 0.62) 100%);
+        }
+
+        .demo-play:focus-visible {
+            outline: 3px solid var(--success);
+            outline-offset: -3px;
+        }
+
+        .demo-play[hidden] {
+            display: none;
+        }
+
+        .demo-play-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: var(--rounded-pill);
+            background: var(--canvas);
+            color: var(--ink);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transition: transform 0.25s ease;
+        }
+
+        .demo-play:hover .demo-play-icon {
+            transform: scale(1.06);
+        }
+
+        .demo-play-icon svg {
+            width: 28px;
+            height: 28px;
+            /* Optical centering — a triangle reads left-heavy when geometrically centred */
+            margin-left: 4px;
+        }
+
+        .demo-play-text {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .demo-play-time {
+            padding: 4px 10px;
+            border-radius: var(--rounded-pill);
+            background: rgba(255, 255, 255, 0.18);
+            font-variant-numeric: tabular-nums;
+            font-weight: 500;
+        }
+
+        .demo-caption {
+            max-width: 960px;
+            margin: var(--spacing-lg) auto 0;
+            text-align: center;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .animate-on-scroll,
+            .demo-play,
+            .demo-play-icon {
+                transition: none;
+            }
+
+            .animate-on-scroll {
+                opacity: 1;
+                transform: none;
+            }
         }
 
         /* ===== Problem Section ===== */
@@ -811,6 +946,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -830,12 +966,30 @@
 
         /* ===== Responsive ===== */
         @media (max-width: 1024px) {
-            .display-xl { font-size: 48px; }
-            .display-lg { font-size: 36px; }
-            .problem-grid { grid-template-columns: 1fr; }
-            .solution-grid { grid-template-columns: repeat(2, 1fr); }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--spacing-xxl); }
-            .footer-links { gap: 48px; }
+            .display-xl {
+                font-size: 48px;
+            }
+
+            .display-lg {
+                font-size: 36px;
+            }
+
+            .problem-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .solution-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-xxl);
+            }
+
+            .footer-links {
+                gap: 48px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -843,10 +997,19 @@
                 --spacing-section: 64px;
             }
 
-            .display-xl { font-size: 36px; letter-spacing: -1px; }
-            .display-lg { font-size: 28px; letter-spacing: -0.5px; }
+            .display-xl {
+                font-size: 36px;
+                letter-spacing: -1px;
+            }
 
-            .nav-links { display: none; }
+            .display-lg {
+                font-size: 28px;
+                letter-spacing: -0.5px;
+            }
+
+            .nav-links {
+                display: none;
+            }
 
             .hero {
                 padding: 100px 0 var(--spacing-section);
@@ -899,6 +1062,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav class="nav">
@@ -924,31 +1088,75 @@
     <section class="hero">
         <div class="container">
             <div class="hero-badge">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                    </path>
+                </svg>
                 100% Private — Nothing Leaves Your Browser
             </div>
             <h1 class="display-xl">Stop losing track of your <span class="highlight">Schengen visa documents</span></h1>
-            <p class="hero-subtitle">Upload all your supporting documents, organize them per traveler, and export a single print-ready PDF. Free forever, works offline.</p>
+            <p class="hero-subtitle">Upload all your supporting documents, organize them per traveler, and export a
+                single print-ready PDF. Free forever, works offline.</p>
             <div class="hero-ctas">
                 <a href="app.html" class="btn btn-primary btn-lg">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
                     Start Organizing — It's Free
                 </a>
                 <a href="#how-it-works" class="btn btn-secondary btn-lg">See How It Works</a>
             </div>
             <div class="hero-proof">
                 <div class="hero-proof-item">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                     <span>No signup required</span>
                 </div>
                 <div class="hero-proof-item">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                     <span>Works offline</span>
                 </div>
                 <div class="hero-proof-item">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                     <span>Multiple travelers</span>
                 </div>
+            </div>
+            <div class="hero-visual">
+                <div class="demo-frame">
+                    <video id="demoVideo" preload="none" playsinline
+                        poster="https://20agwikcmvsx69bl.public.blob.vercel-storage.com/demo/demo-poster.jpg"
+                        width="1920" height="1048">
+                        <source src="https://20agwikcmvsx69bl.public.blob.vercel-storage.com/demo/demo-1080p.mp4"
+                            type="video/mp4">
+                        <p>Your browser can't play this video. <a
+                                href="https://20agwikcmvsx69bl.public.blob.vercel-storage.com/demo/demo-1080p.mp4">Download
+                                the demo instead.</a></p>
+                    </video>
+                    <button type="button" class="demo-play" id="demoPlay" aria-controls="demoVideo"
+                        aria-label="Play the demo video, 3 minutes 49 seconds, narrated with on-screen captions">
+                        <span class="demo-play-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M8 5.14v13.72a1 1 0 001.5.86l11-6.86a1 1 0 000-1.72l-11-6.86a1 1 0 00-1.5.86z">
+                                </path>
+                            </svg>
+                        </span>
+                        <span class="demo-play-text" aria-hidden="true">
+                            Watch the demo
+                            <span class="demo-play-time">3:49</span>
+                        </span>
+                    </button>
+                </div>
+                <p class="demo-caption">Narrated, with captions on screen throughout — sound is optional. Every file
+                    shown is a sample document.</p>
             </div>
         </div>
     </section>
@@ -959,29 +1167,45 @@
             <div class="section-header animate-on-scroll">
                 <span class="label">The Problem</span>
                 <h2 class="display-lg">Visa applications are document nightmares</h2>
-                <p>Incomplete documents are the #1 reason for Schengen visa rejections. Don't let disorganization cost you your trip.</p>
+                <p>Incomplete documents are the #1 reason for Schengen visa rejections. Don't let disorganization cost
+                    you your trip.</p>
             </div>
             <div class="problem-grid">
                 <div class="problem-card animate-on-scroll">
                     <div class="problem-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                            </path>
+                        </svg>
                     </div>
                     <h3>Scattered files everywhere</h3>
-                    <p>Bank statements from email, insurance from another site, flight PDF from the airline — your Downloads folder is chaos.</p>
+                    <p>Bank statements from email, insurance from another site, flight PDF from the airline — your
+                        Downloads folder is chaos.</p>
                 </div>
                 <div class="problem-card animate-on-scroll">
                     <div class="problem-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                            </path>
+                        </svg>
                     </div>
                     <h3>Multiply by travelers</h3>
-                    <p>Applying with your partner or family? Now you have 2x or 3x the documents to track — with no way to keep them separate.</p>
+                    <p>Applying with your partner or family? Now you have 2x or 3x the documents to track — with no way
+                        to keep them separate.</p>
                 </div>
                 <div class="problem-card animate-on-scroll">
                     <div class="problem-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
+                        </svg>
                     </div>
                     <h3>"Did I forget something?"</h3>
-                    <p>No clear checklist, no progress tracking. You're never quite sure if you have everything until you're at the VFS counter.</p>
+                    <p>No clear checklist, no progress tracking. You're never quite sure if you have everything until
+                        you're at the VFS counter.</p>
                 </div>
             </div>
         </div>
@@ -993,12 +1217,17 @@
             <div class="section-header animate-on-scroll">
                 <span class="label">The Solution</span>
                 <h2 class="display-lg">One tool to organize it all</h2>
-                <p>A purpose-built staging area for your visa documents. Upload, organize, export — then walk into the print shop with confidence.</p>
+                <p>A purpose-built staging area for your visa documents. Upload, organize, export — then walk into the
+                    print shop with confidence.</p>
             </div>
             <div class="solution-grid">
                 <div class="solution-item animate-on-scroll">
                     <div class="solution-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                            </path>
+                        </svg>
                     </div>
                     <div>
                         <h4>Pre-loaded checklist</h4>
@@ -1007,7 +1236,11 @@
                 </div>
                 <div class="solution-item animate-on-scroll">
                     <div class="solution-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                        </svg>
                     </div>
                     <div>
                         <h4>Per-person tabs</h4>
@@ -1016,7 +1249,10 @@
                 </div>
                 <div class="solution-item animate-on-scroll">
                     <div class="solution-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                        </svg>
                     </div>
                     <div>
                         <h4>Drag to reorder</h4>
@@ -1025,7 +1261,10 @@
                 </div>
                 <div class="solution-item animate-on-scroll">
                     <div class="solution-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
                     </div>
                     <div>
                         <h4>One-click PDF export</h4>
@@ -1034,7 +1273,11 @@
                 </div>
                 <div class="solution-item animate-on-scroll">
                     <div class="solution-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg>
                     </div>
                     <div>
                         <h4>100% private</h4>
@@ -1043,7 +1286,11 @@
                 </div>
                 <div class="solution-item animate-on-scroll">
                     <div class="solution-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
                     </div>
                     <div>
                         <h4>Progress tracking</h4>
@@ -1066,28 +1313,32 @@
                     <div class="step-number">1</div>
                     <div class="step-content">
                         <h3>Add your travelers</h3>
-                        <p>Create a tab for yourself, then add tabs for your partner, kids, or anyone else applying together. Each person gets their own independent checklist.</p>
+                        <p>Create a tab for yourself, then add tabs for your partner, kids, or anyone else applying
+                            together. Each person gets their own independent checklist.</p>
                     </div>
                 </div>
                 <div class="step animate-on-scroll">
                     <div class="step-number">2</div>
                     <div class="step-content">
                         <h3>Upload your documents</h3>
-                        <p>Go through the checklist and upload each document — passport scan, bank statements, insurance certificate, flight booking, hotel confirmations. PDF or images both work.</p>
+                        <p>Go through the checklist and upload each document — passport scan, bank statements, insurance
+                            certificate, flight booking, hotel confirmations. PDF or images both work.</p>
                     </div>
                 </div>
                 <div class="step animate-on-scroll">
                     <div class="step-number">3</div>
                     <div class="step-content">
                         <h3>Reorder if needed</h3>
-                        <p>Drag documents to match your consulate's preferred order. Mark any documents you've already printed separately so they're excluded from the export.</p>
+                        <p>Drag documents to match your consulate's preferred order. Mark any documents you've already
+                            printed separately so they're excluded from the export.</p>
                     </div>
                 </div>
                 <div class="step animate-on-scroll">
                     <div class="step-number">4</div>
                     <div class="step-content">
                         <h3>Export and print</h3>
-                        <p>Click Export to generate a single PDF with all documents, section dividers, and a cover page. Take it to any print shop, print, and you're done.</p>
+                        <p>Click Export to generate a single PDF with all documents, section dividers, and a cover page.
+                            Take it to any print shop, print, and you're done.</p>
                     </div>
                 </div>
             </div>
@@ -1136,7 +1387,8 @@
                 <div class="country-tag"><span class="country-flag">🇵🇹</span> Portugal</div>
                 <div class="country-tag"><span class="country-flag">🇨🇭</span> Switzerland</div>
             </div>
-            <p class="countries-note animate-on-scroll">The core document checklist is similar across all 29 Schengen countries. Country-specific requirements coming soon.</p>
+            <p class="countries-note animate-on-scroll">The core document checklist is similar across all 29 Schengen
+                countries. Country-specific requirements coming soon.</p>
         </div>
     </section>
 
@@ -1151,55 +1403,83 @@
                 <div class="faq-item open animate-on-scroll">
                     <button class="faq-question">
                         Is this tool really free?
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </button>
                     <div class="faq-answer">
-                        Yes, completely free. There's no catch, no premium tier (yet), and no data collection. The tool runs entirely in your browser — we don't even have servers to charge you for.
+                        Yes, completely free. There's no catch, no premium tier (yet), and no data collection. The tool
+                        runs entirely in your browser — we don't even have servers to charge you for.
                     </div>
                 </div>
                 <div class="faq-item animate-on-scroll">
                     <button class="faq-question">
                         Are my documents safe?
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </button>
                     <div class="faq-answer">
-                        Absolutely. Your documents never leave your device. The tool uses pdf-lib to merge PDFs entirely in your browser. There are no uploads, no accounts, and no tracking. You can even use the tool offline after loading it once.
+                        Absolutely. Your documents never leave your device. The tool uses pdf-lib to merge PDFs entirely
+                        in your browser. There are no uploads, no accounts, and no tracking. You can even use the tool
+                        offline after loading it once.
                     </div>
                 </div>
                 <div class="faq-item animate-on-scroll">
                     <button class="faq-question">
                         What documents do I need for a Schengen visa?
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </button>
                     <div class="faq-answer">
-                        The standard list includes: passport (valid 3+ months beyond return), passport photos, completed application form, cover letter, flight itinerary, travel insurance (min €30,000), hotel bookings, bank statements (3-6 months), employment letter, salary slips, and income tax returns. Some consulates may have additional requirements.
+                        The standard list includes: passport (valid 3+ months beyond return), passport photos, completed
+                        application form, cover letter, flight itinerary, travel insurance (min €30,000), hotel
+                        bookings, bank statements (3-6 months), employment letter, salary slips, and income tax returns.
+                        Some consulates may have additional requirements.
                     </div>
                 </div>
                 <div class="faq-item animate-on-scroll">
                     <button class="faq-question">
                         Can I use this for multiple people?
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </button>
                     <div class="faq-answer">
-                        Yes! That's one of the main features. Click the + button to add tabs for each traveler. Each person gets their own checklist. You can export PDFs individually or combine everyone into one document.
+                        Yes! That's one of the main features. Click the + button to add tabs for each traveler. Each
+                        person gets their own checklist. You can export PDFs individually or combine everyone into one
+                        document.
                     </div>
                 </div>
                 <div class="faq-item animate-on-scroll">
                     <button class="faq-question">
                         What file formats are supported?
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </button>
                     <div class="faq-answer">
-                        You can upload PDFs, JPGs, PNGs, and WebP images. All formats are merged into a single A4 PDF for printing. Images are automatically scaled to fit the page.
+                        You can upload PDFs, JPGs, PNGs, and WebP images. All formats are merged into a single A4 PDF
+                        for printing. Images are automatically scaled to fit the page.
                     </div>
                 </div>
                 <div class="faq-item animate-on-scroll">
                     <button class="faq-question">
                         I already printed some documents. Can I exclude them?
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="6 9 12 15 18 9"></polyline></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </button>
                     <div class="faq-answer">
-                        Yes. Click the "Printed" button on any document to mark it as already printed. It will count as complete in your progress tracker but won't be included in the PDF export.
+                        Yes. Click the "Printed" button on any document to mark it as already printed. It will count as
+                        complete in your progress tracker but won't be included in the PDF export.
                     </div>
                 </div>
             </div>
@@ -1210,10 +1490,15 @@
     <section class="cta-section">
         <div class="container">
             <h2 class="display-lg animate-on-scroll">Ready to get organized?</h2>
-            <p class="animate-on-scroll">Stop worrying about missing documents. Start your visa application the right way.</p>
+            <p class="animate-on-scroll">Stop worrying about missing documents. Start your visa application the right
+                way.</p>
             <div class="cta-buttons animate-on-scroll">
                 <a href="app.html" class="btn btn-white btn-lg">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
                     Start Organizing — Free
                 </a>
                 <a href="features.html" class="btn btn-outline-white btn-lg">View All Features</a>
@@ -1266,10 +1551,18 @@
                 <p class="footer-copyright">&copy; 2024 Visa Doc Collator. Made with love for travelers.</p>
                 <div class="footer-social">
                     <a href="#" aria-label="Twitter">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z">
+                            </path>
+                        </svg>
                     </a>
                     <a href="#" aria-label="GitHub">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"></path></svg>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22">
+                            </path>
+                        </svg>
                     </a>
                 </div>
             </div>
@@ -1289,7 +1582,7 @@
         });
 
         // Scroll animations
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const observerOptions = {
                 root: null,
                 rootMargin: '0px',
@@ -1311,12 +1604,29 @@
 
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
+            anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
         });
+
+        // Demo video — the 21MB file is only fetched once the viewer opts in
+        (function () {
+            const video = document.getElementById('demoVideo');
+            const playBtn = document.getElementById('demoPlay');
+            if (!video || !playBtn) return;
+
+            playBtn.addEventListener('click', () => {
+                video.controls = true;
+                playBtn.hidden = true;
+                const started = video.play();
+                // Autoplay-with-sound can still be refused; hand the viewer native controls either way
+                if (started) started.catch(() => { video.controls = true; });
+                video.focus({ preventScroll: true });
+            });
+        })();
     </script>
 </body>
+
 </html>

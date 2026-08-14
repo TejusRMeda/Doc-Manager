@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard — Visa Document Collator</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        /* Cal.com Design System Tokens */
+        :root {
+            --primary: #111111;
+            --ink: #111111;
+            --body: #374151;
+            --muted: #6b7280;
+            --hairline: #e5e7eb;
+            --canvas: #ffffff;
+            --surface-soft: #f8f9fa;
+            --surface-card: #f5f5f5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --rounded-md: 8px;
+            --rounded-lg: 12px;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--ink);
+            background: var(--surface-soft);
+            min-height: 100vh;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-xl);
+        }
+
+        .login-box {
+            background: var(--canvas);
+            border-radius: var(--rounded-lg);
+            padding: var(--spacing-xl);
+            border: 1px solid var(--hairline);
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+        }
+
+        .login-box h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .login-box p {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .login-input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--hairline);
+            border-radius: var(--rounded-md);
+            font-size: 1rem;
+            margin-bottom: var(--spacing-md);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .login-input:focus {
+            border-color: var(--primary);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--rounded-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .login-btn:hover { background: #333; }
+        .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .login-error {
+            color: var(--error);
+            font-size: 0.875rem;
+            margin-top: var(--spacing-sm);
+            display: none;
+        }
+
+        .login-error.show { display: block; }
+
+        /* Dashboard */
+        .dashboard { display: none; }
+        .dashboard.show { display: block; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .refresh-btn, .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--rounded-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .refresh-btn:hover { background: #333; }
+        .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .refresh-btn svg, .logout-btn svg { width: 16px; height: 16px; }
+        .refresh-btn.loading svg { animation: spin 1s linear infinite; }
+
+        .logout-btn {
+            background: var(--surface-soft);
+            color: var(--muted);
+            border: 1px solid var(--hairline);
+        }
+
+        .logout-btn:hover { background: var(--hairline); }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .card {
+            background: var(--canvas);
+            border-radius: var(--rounded-lg);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--hairline);
+        }
+
+        .card-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .card-value.success { color: var(--success); }
+
+        .section {
+            background: var(--canvas);
+            border-radius: var(--rounded-lg);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--hairline);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--hairline);
+        }
+
+        th {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            background: var(--surface-soft);
+        }
+
+        td { font-size: 0.875rem; color: var(--body); }
+
+        .bar-container {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .bar {
+            flex: 1;
+            height: 8px;
+            background: var(--surface-soft);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .bar-value {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--muted);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .event-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--hairline);
+        }
+
+        .event-item:last-child { border-bottom: none; }
+
+        .event-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--ink);
+            flex: 1;
+        }
+
+        .event-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--surface-soft);
+            color: var(--muted);
+        }
+
+        .event-time {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .chart-container {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            padding-top: var(--spacing-md);
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: var(--primary);
+            border-radius: 4px 4px 0 0;
+            min-height: 4px;
+            position: relative;
+            transition: height 0.3s ease;
+        }
+
+        .chart-bar:hover { opacity: 0.8; }
+
+        .chart-bar::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.625rem;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--muted);
+        }
+
+        .error-state {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--error);
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-align: center;
+            margin-top: var(--spacing-md);
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+        }
+
+        @media (max-width: 768px) {
+            .two-col { grid-template-columns: 1fr; }
+            .container { padding: var(--spacing-md); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <h1>Analytics Dashboard</h1>
+            <p>Enter your admin password to continue</p>
+            <form onsubmit="handleLogin(event)">
+                <input type="password" class="login-input" id="passwordInput" placeholder="Password" autocomplete="current-password" required>
+                <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+            </form>
+            <div class="login-error" id="loginError">Invalid password. Please try again.</div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <div class="container">
+            <header>
+                <h1>Analytics Dashboard</h1>
+                <div class="header-actions">
+                    <button class="refresh-btn" onclick="loadStats()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button class="logout-btn" onclick="handleLogout()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Summary Cards -->
+            <div class="grid" id="summaryCards">
+                <div class="card">
+                    <div class="card-label">Total Page Views</div>
+                    <div class="card-value" id="totalPageViews">—</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">PDF Exports</div>
+                    <div class="card-value" id="totalExports">—</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Completion Rate</div>
+                    <div class="card-value success" id="completionRate">—</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Total Pages Exported</div>
+                    <div class="card-value" id="totalPages">—</div>
+                </div>
+            </div>
+
+            <!-- Daily Chart -->
+            <div class="section">
+                <div class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                    Daily Sessions (Last 7 Days)
+                </div>
+                <div class="chart-container" id="dailyChart"></div>
+            </div>
+
+            <div class="two-col">
+                <!-- Event Totals -->
+                <div class="section">
+                    <div class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        Event Breakdown
+                    </div>
+                    <table id="eventTable">
+                        <thead>
+                            <tr><th>Event</th><th>Count</th><th></th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <!-- Country Usage -->
+                <div class="section">
+                    <div class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        Country Usage
+                    </div>
+                    <table id="countryTable">
+                        <thead>
+                            <tr><th>Country</th><th>Uses</th><th></th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Funnel -->
+            <div class="section">
+                <div class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    Conversion Funnel (Today)
+                </div>
+                <div id="funnelChart"></div>
+            </div>
+
+            <!-- Recent Events -->
+            <div class="section">
+                <div class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    Recent Events
+                </div>
+                <div class="event-list" id="recentEvents"></div>
+            </div>
+
+            <div class="timestamp" id="timestamp"></div>
+        </div>
+    </div>
+
+    <script>
+        // Auth state
+        let authToken = sessionStorage.getItem('analytics_token');
+
+        // Check if already logged in
+        if (authToken) {
+            showDashboard();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('passwordInput').value;
+            const btn = document.getElementById('loginBtn');
+            const error = document.getElementById('loginError');
+
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            error.classList.remove('show');
+
+            try {
+                const res = await fetch('/api/stats', {
+                    headers: { 'Authorization': `Bearer ${password}` }
+                });
+
+                if (res.ok) {
+                    sessionStorage.setItem('analytics_token', password);
+                    authToken = password;
+                    showDashboard();
+                    const data = await res.json();
+                    renderStats(data);
+                } else {
+                    error.classList.add('show');
+                }
+            } catch (err) {
+                error.textContent = 'Connection error. Please try again.';
+                error.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('analytics_token');
+            authToken = null;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('show');
+            document.getElementById('passwordInput').value = '';
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').classList.add('show');
+            loadStats();
+        }
+
+        async function loadStats() {
+            if (!authToken) return;
+
+            const btn = document.querySelector('.refresh-btn');
+            btn.disabled = true;
+            btn.classList.add('loading');
+
+            try {
+                const res = await fetch('/api/stats', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (res.status === 401) {
+                    handleLogout();
+                    return;
+                }
+
+                if (!res.ok) throw new Error('Failed to fetch stats');
+                const data = await res.json();
+                renderStats(data);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('summaryCards').innerHTML = `
+                    <div class="error-state" style="grid-column: 1/-1">
+                        Failed to load analytics. Please try again.
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+            }
+        }
+
+        function renderStats(data) {
+            // Summary cards
+            document.getElementById('totalPageViews').textContent = formatNumber(data.summary.totalPageViews);
+            document.getElementById('totalExports').textContent = formatNumber(data.summary.totalExports);
+            document.getElementById('completionRate').textContent = data.summary.completionRate;
+            document.getElementById('totalPages').textContent = formatNumber(data.summary.totalPagesExported);
+
+            // Daily chart
+            const maxSessions = Math.max(...data.daily.map(d => d.sessions), 1);
+            document.getElementById('dailyChart').innerHTML = data.daily.map(d => {
+                const height = (d.sessions / maxSessions) * 100;
+                const label = new Date(d.date).toLocaleDateString('en', { weekday: 'short' });
+                return `<div class="chart-bar" style="height: ${Math.max(height, 2)}%" data-label="${label}" title="${d.sessions} sessions on ${d.date}"></div>`;
+            }).join('');
+
+            // Event breakdown
+            const totalEvents = Object.values(data.totals).reduce((a, b) => a + b, 0) || 1;
+            const eventRows = Object.entries(data.totals)
+                .sort((a, b) => b[1] - a[1])
+                .map(([event, count]) => {
+                    const pct = (count / totalEvents) * 100;
+                    return `
+                        <tr>
+                            <td>${formatEventName(event)}</td>
+                            <td>${formatNumber(count)}</td>
+                            <td>
+                                <div class="bar-container">
+                                    <div class="bar"><div class="bar-fill" style="width: ${pct}%"></div></div>
+                                    <span class="bar-value">${pct.toFixed(0)}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            document.querySelector('#eventTable tbody').innerHTML = eventRows || '<tr><td colspan="3">No events yet</td></tr>';
+
+            // Country usage
+            const totalCountries = Object.values(data.countries).reduce((a, b) => a + b, 0) || 1;
+            const countryRows = Object.entries(data.countries)
+                .sort((a, b) => b[1] - a[1])
+                .map(([country, count]) => {
+                    const pct = (count / totalCountries) * 100;
+                    return `
+                        <tr>
+                            <td>${country.charAt(0).toUpperCase() + country.slice(1)}</td>
+                            <td>${formatNumber(count)}</td>
+                            <td>
+                                <div class="bar-container">
+                                    <div class="bar"><div class="bar-fill" style="width: ${pct}%"></div></div>
+                                    <span class="bar-value">${pct.toFixed(0)}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            document.querySelector('#countryTable tbody').innerHTML = countryRows || '<tr><td colspan="3">No data yet</td></tr>';
+
+            // Funnel (today's data)
+            const today = data.daily[data.daily.length - 1]?.funnel || {};
+            const funnelSteps = [
+                { name: 'Page Views', key: 'views' },
+                { name: 'Uploads', key: 'uploads' },
+                { name: 'Previews', key: 'previews' },
+                { name: 'Exports', key: 'exports' },
+            ];
+            const maxFunnel = Math.max(...funnelSteps.map(s => today[s.key] || 0), 1);
+            document.getElementById('funnelChart').innerHTML = `
+                <table style="width: 100%">
+                    ${funnelSteps.map(step => {
+                        const count = today[step.key] || 0;
+                        const pct = (count / maxFunnel) * 100;
+                        return `
+                            <tr>
+                                <td style="width: 100px">${step.name}</td>
+                                <td style="width: 60px; text-align: right; font-weight: 600">${count}</td>
+                                <td>
+                                    <div class="bar"><div class="bar-fill" style="width: ${pct}%"></div></div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </table>
+            `;
+
+            // Recent events
+            const recentHtml = data.recentEvents.map(e => {
+                const time = new Date(e.timestamp).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
+                const props = e.properties ? Object.entries(e.properties)
+                    .filter(([k]) => !['timestamp', 'sessionId', 'referrer'].includes(k))
+                    .map(([k, v]) => `${k}: ${v}`)
+                    .join(', ') : '';
+                return `
+                    <div class="event-item">
+                        <span class="event-name">${formatEventName(e.event)}</span>
+                        ${props ? `<span class="event-badge">${props}</span>` : ''}
+                        <span class="event-time">${time}</span>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('recentEvents').innerHTML = recentHtml || '<div class="loading-state">No recent events</div>';
+
+            // Timestamp
+            document.getElementById('timestamp').textContent = `Last updated: ${new Date(data.generatedAt).toLocaleString()}`;
+        }
+
+        function formatNumber(n) {
+            return new Intl.NumberFormat().format(n || 0);
+        }
+
+        function formatEventName(name) {
+            return name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        // Auto-refresh every 30 seconds (only when logged in)
+        setInterval(() => {
+            if (authToken) loadStats();
+        }, 30000);
+    </script>
+</body>
+</html>
